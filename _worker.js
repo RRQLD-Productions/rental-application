@@ -17,10 +17,15 @@ const REALM = 'Renaissance Rentals — Staff';
 
 // Files that exist in the assets directory but should ONLY be reachable
 // via the staff host. On any other host (apply., etc.) they 404.
+// Both with-extension and extensionless variants are blocked because
+// Cloudflare static assets serves /foo.html at both /foo.html and /foo.
 const STAFF_ONLY_PATHS = new Set([
   '/staff.html',
+  '/staff',
   '/inspection.html',
+  '/inspection',
   '/link-generator.html',
+  '/link-generator',
 ]);
 
 function unauthorized() {
