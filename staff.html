@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Renaissance Rentals — Staff Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111111;--border:#222;--text-secondary:#999;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+background:var(--black);color:var(--white);
+font-family:var(--sans);font-weight:300;
+min-height:100vh;line-height:1.6;
+-webkit-font-smoothing:antialiased;
+display:flex;flex-direction:column;
+}
+body::before{
+content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+opacity:.03;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.page-wrapper{
+position:relative;z-index:1;
+width:100%;max-width:600px;
+margin:0 auto;padding:48px 24px 60px;
+flex:1;display:flex;flex-direction:column;
+}
+.header{text-align:center;margin-bottom:48px;padding-top:20px}
+.mark{
+display:inline-flex;align-items:center;justify-content:center;
+width:78px;height:78px;margin-bottom:22px;
+border:1px solid var(--gold-dim);border-radius:50%;
+font-family:var(--serif);font-size:1.8rem;font-weight:400;
+letter-spacing:.05em;color:var(--gold);
+opacity:0;animation:fadeUp .8s ease forwards;
+}
+.header h1{
+font-family:var(--serif);font-weight:300;
+font-size:clamp(1.5rem,4vw,2rem);
+letter-spacing:.15em;text-transform:uppercase;color:var(--white);
+margin-bottom:8px;
+opacity:0;animation:fadeUp .8s ease .15s forwards;
+}
+.header .tagline{
+font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;
+color:var(--gold);font-weight:500;
+opacity:0;animation:fadeUp .8s ease .3s forwards;
+}
+.header .internal-badge{
+display:inline-block;margin-top:18px;padding:5px 18px;
+border:1px solid var(--gold-dim);border-radius:2px;
+font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+color:var(--gold);font-weight:500;
+opacity:0;animation:fadeUp .8s ease .4s forwards;
+}
+.divider{
+width:60px;height:1px;background:var(--gold);margin:22px auto 0;
+opacity:0;animation:fadeUp .8s ease .45s forwards;
+}
+.tools{
+display:flex;flex-direction:column;gap:18px;
+margin-bottom:32px;
+}
+.tool-card{
+display:block;text-decoration:none;color:inherit;
+background:var(--card-bg);border:1px solid var(--border);
+border-radius:2px;padding:28px 26px;
+position:relative;overflow:hidden;
+transition:border-color .3s ease,transform .3s ease;
+opacity:0;transform:translateY(12px);
+animation:fadeUp .8s ease forwards;
+-webkit-tap-highlight-color:transparent;
+}
+.tool-card:nth-child(1){animation-delay:.5s}
+.tool-card:nth-child(2){animation-delay:.6s}
+.tool-card:nth-child(3){animation-delay:.7s}
+.tool-card:hover,.tool-card:focus-visible{border-color:var(--gold-dim);outline:none}
+.tool-card:active{transform:scale(.99)}
+.tool-card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);
+opacity:.4;
+}
+.tool-card-inner{
+display:flex;align-items:center;gap:20px;
+}
+.tool-icon{
+flex-shrink:0;width:46px;height:46px;
+display:flex;align-items:center;justify-content:center;
+border:1px solid var(--gold-dim);border-radius:50%;
+color:var(--gold);
+}
+.tool-icon svg{width:22px;height:22px}
+.tool-text{flex:1;min-width:0}
+.tool-title{
+font-family:var(--serif);font-weight:400;
+font-size:1.25rem;letter-spacing:.06em;
+color:var(--white);margin-bottom:4px;
+}
+.tool-sub{
+font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+color:var(--text-secondary);font-weight:500;
+}
+.tool-arrow{
+flex-shrink:0;color:var(--gold);
+transition:transform .3s ease;
+}
+.tool-card:hover .tool-arrow{transform:translateX(4px)}
+.tool-arrow svg{width:18px;height:18px;display:block}
+.footer{
+margin-top:auto;padding-top:32px;
+text-align:center;
+font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+color:#555;font-weight:500;
+}
+.footer a{color:var(--gold-dim);text-decoration:none}
+.footer a:hover{color:var(--gold)}
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(12px)}
+to{opacity:1;transform:translateY(0)}
+}
+@media (max-width:480px){
+.page-wrapper{padding:36px 20px 48px}
+.header{margin-bottom:36px}
+.tool-card{padding:24px 22px}
+.tool-card-inner{gap:16px}
+.tool-icon{width:42px;height:42px}
+.tool-title{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<header class="header">
+<div class="mark">RR</div>
+<h1>Renaissance Rentals</h1>
+<div class="tagline">Queensland</div>
+<div class="internal-badge">Staff Tools</div>
+<div class="divider"></div>
+</header>
+
+<nav class="tools" aria-label="Staff tools">
+
+<a class="tool-card" href="inspection.html">
+<div class="tool-card-inner">
+<div class="tool-icon" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+</div>
+<div class="tool-text">
+<div class="tool-title">Vehicle Inspection</div>
+<div class="tool-sub">Pick-up &amp; Hand-back</div>
+</div>
+<div class="tool-arrow" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+</svg>
+</div>
+</div>
+</a>
+
+<a class="tool-card" href="link-generator.html">
+<div class="tool-card-inner">
+<div class="tool-icon" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/>
+</svg>
+</div>
+<div class="tool-text">
+<div class="tool-title">Rental Link Generator</div>
+<div class="tool-sub">New Customer Application</div>
+</div>
+<div class="tool-arrow" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/>
+</svg>
+</div>
+</div>
+</a>
+
+</nav>
+
+<div class="footer">
+Internal Use Only &nbsp;·&nbsp; Renaissance Rentals QLD
+</div>
+
+</div>
+
+</body>
+</html>
