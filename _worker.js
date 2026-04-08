@@ -1,12 +1,18 @@
-// HTTP Basic Auth for the entire site (Workers Static Assets).
+// Routing + Basic Auth for the Renaissance Rentals Worker.
 //
-// Credentials come from Worker environment variables:
+// This single Worker is bound to multiple custom domains:
+//   - apply.renaissancerentalsqld.com  → public customer rental application
+//                                        (no auth, root serves index.html)
+//   - staff.renaissancerentalsqld.com  → internal staff hub
+//                                        (Basic Auth required, root serves staff.html)
+//
+// Basic Auth credentials come from Worker environment variables:
 //   BASIC_AUTH_USER  — the username
 //   BASIC_AUTH_PASS  — the password
 // Set these in: Workers & Pages → this Worker → Settings → Variables and Secrets.
-// (The "cannot add variables" warning disappears once this file is deployed,
-//  because the Worker now has code, not just static assets.)
 
+const STAFF_HOST = 'staff.renaissancerentalsqld.com';
+const STAFF_ROOT_FILE = '/staff.html';
 const REALM = 'Renaissance Rentals — Staff';
 
 function unauthorized() {
@@ -30,42 +36,62 @@ function safeEqual(a, b) {
   return mismatch === 0;
 }
 
+function checkBasicAuth(request, env) {
+  const expectedUser = env.BASIC_AUTH_USER;
+  const expectedPass = env.BASIC_AUTH_PASS;
+
+  // Fail closed if env vars aren't set yet — never serve the staff site unprotected.
+  if (!expectedUser || !expectedPass) {
+    return new Response(
+      'Staff auth is not configured. Set BASIC_AUTH_USER and BASIC_AUTH_PASS in Worker → Settings → Variables and Secrets, then redeploy.',
+      { status: 503 }
+    );
+  }
+
+  const header = request.headers.get('Authorization') || '';
+  if (!header.startsWith('Basic ')) {
+    return unauthorized();
+  }
+
+  let decoded;
+  try {
+    decoded = atob(header.slice(6).trim());
+  } catch {
+    return unauthorized();
+  }
+
+  const sep = decoded.indexOf(':');
+  if (sep === -1) return unauthorized();
+
+  const user = decoded.slice(0, sep);
+  const pass = decoded.slice(sep + 1);
+
+  if (!(safeEqual(user, expectedUser) && safeEqual(pass, expectedPass))) {
+    return unauthorized();
+  }
+
+  return null; // null means "auth passed, continue"
+}
+
 export default {
   async fetch(request, env) {
-    const expectedUser = env.BASIC_AUTH_USER;
-    const expectedPass = env.BASIC_AUTH_PASS;
+    const url = new URL(request.url);
+    const isStaffHost = url.hostname === STAFF_HOST;
 
-    // Fail closed if env vars aren't set yet — never serve the site unprotected.
-    if (!expectedUser || !expectedPass) {
-      return new Response(
-        'Site auth is not configured. Set BASIC_AUTH_USER and BASIC_AUTH_PASS in Worker → Settings → Variables and Secrets, then redeploy.',
-        { status: 503 }
-      );
+    if (isStaffHost) {
+      // Lock down the entire staff host with Basic Auth.
+      const authResponse = checkBasicAuth(request, env);
+      if (authResponse) return authResponse;
+
+      // Serve the hub at the bare URL.
+      if (url.pathname === '/' || url.pathname === '') {
+        const rewritten = new URL(request.url);
+        rewritten.pathname = STAFF_ROOT_FILE;
+        return env.ASSETS.fetch(new Request(rewritten.toString(), request));
+      }
     }
 
-    const header = request.headers.get('Authorization') || '';
-    if (!header.startsWith('Basic ')) {
-      return unauthorized();
-    }
-
-    let decoded;
-    try {
-      decoded = atob(header.slice(6).trim());
-    } catch {
-      return unauthorized();
-    }
-
-    const sep = decoded.indexOf(':');
-    if (sep === -1) return unauthorized();
-
-    const user = decoded.slice(0, sep);
-    const pass = decoded.slice(sep + 1);
-
-    if (!(safeEqual(user, expectedUser) && safeEqual(pass, expectedPass))) {
-      return unauthorized();
-    }
-
-    // Authenticated — serve the requested static asset.
+    // Public customer host (and any other host) — pass straight through.
     return env.ASSETS.fetch(request);
   },
 };
