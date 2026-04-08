@@ -102,6 +102,9 @@ export default {
         rewritten.pathname = STAFF_ROOT_FILE;
         return env.ASSETS.fetch(new Request(rewritten.toString(), request));
       }
+
+      // All other authenticated requests on the staff host: serve normally.
+      return env.ASSETS.fetch(request);
     }
 
     // Public customer host (and any other host).
