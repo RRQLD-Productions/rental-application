@@ -15,6 +15,14 @@ const STAFF_HOST = 'staff.renaissancerentalsqld.com';
 const STAFF_ROOT_FILE = '/staff.html';
 const REALM = 'Renaissance Rentals — Staff';
 
+// Files that exist in the assets directory but should ONLY be reachable
+// via the staff host. On any other host (apply., etc.) they 404.
+const STAFF_ONLY_PATHS = new Set([
+  '/staff.html',
+  '/inspection.html',
+  '/link-generator.html',
+]);
+
 function unauthorized() {
   return new Response('Authentication required.', {
     status: 401,
@@ -91,7 +99,13 @@ export default {
       }
     }
 
-    // Public customer host (and any other host) — pass straight through.
+    // Public customer host (and any other host).
+    // Block direct access to staff-only files so they can't be reached
+    // unauthenticated by guessing the path.
+    if (STAFF_ONLY_PATHS.has(url.pathname)) {
+      return new Response('Not found', { status: 404 });
+    }
+
     return env.ASSETS.fetch(request);
   },
 };

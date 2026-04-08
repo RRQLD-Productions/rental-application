@@ -244,11 +244,6 @@ to{opacity:1;transform:translateY(0)}
 </div>
 </div>
 
-<div class="form-group">
-<label for="gDomain">Your Application Page URL</label>
-<input type="text" id="gDomain" placeholder="e.g. apply.renaissancerentalsqld.com" value="apply.renaissancerentalsqld.com">
-</div>
-
 <button class="gen-btn" id="generateBtn" type="button">Generate Link</button>
 </div>
 
@@ -308,7 +303,7 @@ const cycle = document.getElementById('gCycle').value;
 const priceRaw = document.getElementById('gPrice').value.trim().replace(/[^0-9.]/g, '');
 const duration = document.getElementById('gDuration').value.trim();
 const bondRaw = document.getElementById('gBond').value.trim().replace(/[^0-9.]/g, '');
-const domain = document.getElementById('gDomain').value.trim();
+const domain = 'apply.renaissancerentalsqld.com';
 
 if (!vehicle || !priceRaw || !duration || !bondRaw) {
 alert('Please fill in all rental details.');
