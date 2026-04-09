@@ -26,6 +26,8 @@ const STAFF_ONLY_PATHS = new Set([
   '/inspection',
   '/link-generator.html',
   '/link-generator',
+  '/contract-generator.html',
+  '/contract-generator',
 ]);
 
 function unauthorized() {

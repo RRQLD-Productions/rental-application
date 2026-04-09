@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Renaissance Rentals — Contract Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111111;--border:#222;--text-secondary:#999;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+background:var(--black);color:var(--white);
+font-family:var(--sans);font-weight:300;
+min-height:100vh;line-height:1.6;
+-webkit-font-smoothing:antialiased;
+}
+body::before{
+content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+opacity:.03;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.page-wrapper{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:40px 24px 80px}
+.header{text-align:center;margin-bottom:40px;padding-top:12px}
+.mark{
+display:inline-flex;align-items:center;justify-content:center;
+width:70px;height:70px;margin-bottom:18px;
+border:1px solid var(--gold-dim);border-radius:50%;
+font-family:var(--serif);font-size:1.6rem;color:var(--gold);
+opacity:0;animation:fadeUp .8s ease forwards;
+}
+.header h1{
+font-family:var(--serif);font-weight:300;font-size:clamp(1.4rem,3.5vw,1.8rem);
+letter-spacing:.15em;text-transform:uppercase;color:var(--white);
+margin-bottom:6px;opacity:0;animation:fadeUp .8s ease .15s forwards;
+}
+.header .tagline{
+font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;
+color:var(--gold);font-weight:500;
+opacity:0;animation:fadeUp .8s ease .3s forwards;
+}
+.header .internal-badge{
+display:inline-block;margin-top:16px;padding:4px 16px;
+border:1px solid var(--gold-dim);border-radius:2px;
+font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+color:var(--gold);font-weight:500;
+opacity:0;animation:fadeUp .8s ease .4s forwards;
+}
+.divider{width:60px;height:1px;background:var(--gold);margin:20px auto 0;opacity:0;animation:fadeUp .8s ease .4s forwards}
+.back-link{display:inline-block;margin-bottom:16px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none;font-weight:500}
+.back-link:hover{color:var(--gold)}
+.card{
+background:var(--card-bg);border:1px solid var(--border);
+border-radius:2px;padding:28px 26px;margin-bottom:22px;
+position:relative;overflow:hidden;
+transition:border-color .3s ease;
+}
+.card:hover{border-color:#333}
+.card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);
+opacity:.4;
+}
+.section-label{
+font-family:var(--serif);font-weight:400;font-size:1.1rem;
+letter-spacing:.08em;color:var(--white);margin-bottom:4px;
+}
+.section-sublabel{
+font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+color:var(--text-secondary);margin-bottom:22px;
+}
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+label{
+display:block;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;
+color:var(--text-secondary);font-weight:500;margin-bottom:6px;
+}
+input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="time"],input[type="number"],select,textarea{
+width:100%;background:transparent;border:none;
+border-bottom:1px solid var(--border);
+color:var(--white);font-family:var(--sans);font-weight:300;
+font-size:.92rem;padding:8px 0;
+transition:border-color .3s ease;outline:none;
+appearance:none;-webkit-appearance:none;
+color-scheme:dark;
+}
+textarea{resize:vertical;min-height:60px}
+select{
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+background-repeat:no-repeat;background-position:right 0 center;cursor:pointer;
+}
+select option{background:var(--card-bg);color:var(--white)}
+input:focus,select:focus,textarea:focus{border-bottom-color:var(--gold)}
+input::placeholder,textarea::placeholder{color:#444;font-weight:300}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 22px}
+@media (max-width:560px){.form-row,.form-row-3{grid-template-columns:1fr}}
+.toggle-row{display:flex;align-items:center;gap:14px;padding:10px 0}
+.toggle-row label{margin:0;cursor:pointer;font-size:.7rem;letter-spacing:.15em;color:var(--white);text-transform:none}
+.toggle-row input[type="checkbox"]{width:auto;appearance:auto;-webkit-appearance:auto;accent-color:var(--gold);cursor:pointer;transform:scale(1.2)}
+.calc-row{
+display:flex;justify-content:space-between;align-items:baseline;
+padding:10px 0;border-bottom:1px solid var(--border);font-size:.85rem;
+}
+.calc-row:last-child{border-bottom:none}
+.calc-row.total{
+border-top:1px solid var(--gold-dim);border-bottom:none;
+margin-top:8px;padding-top:14px;font-size:1rem;
+}
+.calc-label{color:var(--text-secondary);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase}
+.calc-value{color:var(--white);font-variant-numeric:tabular-nums}
+.calc-row.total .calc-label{color:var(--gold);font-weight:600}
+.calc-row.total .calc-value{color:var(--gold);font-weight:500;font-size:1.1rem}
+.help-text{font-size:.6rem;color:var(--text-secondary);margin-top:6px;font-style:italic}
+.input-prefix{position:relative}
+.input-prefix::before{content:'$';position:absolute;left:0;top:8px;color:var(--text-secondary);font-size:.92rem;pointer-events:none}
+.input-prefix input{padding-left:14px}
+.gen-btn{
+display:block;width:100%;padding:16px;
+background:var(--gold);color:var(--black);
+font-family:var(--sans);font-size:.7rem;font-weight:600;
+letter-spacing:.25em;text-transform:uppercase;
+border:none;border-radius:2px;cursor:pointer;
+transition:background .3s ease,transform .15s ease;
+margin-top:10px;
+-webkit-tap-highlight-color:transparent;
+}
+.gen-btn:hover:not(:disabled){background:#d4b15a}
+.gen-btn:active:not(:disabled){transform:scale(.99)}
+.gen-btn:disabled{background:#444;color:#888;cursor:not-allowed}
+.output-card,.email-card{display:none;border-color:var(--gold-dim)}
+.output-card.show,.email-card.show{display:block;animation:fadeUp .5s ease}
+.success-icon{
+display:flex;align-items:center;justify-content:center;
+width:56px;height:56px;margin:0 auto 16px;
+border:1px solid var(--gold);border-radius:50%;color:var(--gold);
+}
+.success-icon svg{width:28px;height:28px}
+.success-title{
+font-family:var(--serif);text-align:center;font-size:1.3rem;
+color:var(--white);letter-spacing:.06em;margin-bottom:6px;
+}
+.success-sub{
+text-align:center;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+color:var(--text-secondary);margin-bottom:24px;
+}
+.success-details{
+background:#0a0a0a;border:1px solid var(--border);border-radius:2px;
+padding:16px;margin-bottom:20px;font-size:.78rem;color:var(--text-secondary);
+}
+.success-details strong{color:var(--white);font-weight:500}
+.email-section-divider{
+height:1px;background:var(--border);margin:8px 0 24px;
+}
+.email-card .section-label{margin-bottom:18px}
+.email-row{display:grid;grid-template-columns:1fr;gap:14px}
+.error-message{
+display:none;background:#2a0e0e;border:1px solid #5c1a1a;
+color:#ff8a8a;padding:12px 14px;font-size:.78rem;border-radius:2px;
+margin-top:14px;
+}
+.error-message.show{display:block;animation:fadeUp .3s ease}
+.spinner{
+display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);
+border-top-color:var(--black);border-radius:50%;
+animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.footer{text-align:center;margin-top:32px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555;font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<a href="staff.html" class="back-link">&larr; Staff Tools</a>
+
+<header class="header">
+<div class="mark">RR</div>
+<h1>Contract Generator</h1>
+<div class="tagline">Renaissance Rentals</div>
+<div class="internal-badge">Internal Tool</div>
+<div class="divider"></div>
+</header>
+
+<form id="contractForm" autocomplete="off" novalidate>
+
+<!-- ───── RENTER DETAILS ───── -->
+<div class="card">
+<div class="section-label">Renter Details</div>
+<div class="section-sublabel">Primary contract holder</div>
+
+<div class="form-group">
+<label for="rName">Full Name</label>
+<input type="text" id="rName" required>
+</div>
+
+<div class="form-group">
+<label for="rAddress">Residential Address</label>
+<input type="text" id="rAddress" required>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="rLicence">Driver's Licence Number</label>
+<input type="text" id="rLicence" required>
+</div>
+<div class="form-group">
+<label for="rLicenceExpiry">Licence Expiry</label>
+<input type="date" id="rLicenceExpiry" required>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="rLicenceState">Licence State / Country</label>
+<input type="text" id="rLicenceState" placeholder="e.g. QLD" required>
+</div>
+<div class="form-group">
+<label for="rDob">Date of Birth</label>
+<input type="date" id="rDob" required>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="rMobile">Mobile Number</label>
+<input type="tel" id="rMobile" required>
+</div>
+<div class="form-group">
+<label for="rEmail">Email</label>
+<input type="email" id="rEmail" required>
+</div>
+</div>
+</div>
+
+<!-- ───── AUTHORISED DRIVER ───── -->
+<div class="card">
+<div class="section-label">Authorised Driver</div>
+<div class="section-sublabel">Optional second driver</div>
+
+<div class="toggle-row">
+<input type="checkbox" id="hasDriver">
+<label for="hasDriver">Add an authorised driver to this contract</label>
+</div>
+
+<div id="driverFields" style="display:none;margin-top:16px">
+<div class="form-group">
+<label for="dName">Full Name</label>
+<input type="text" id="dName">
+</div>
+
+<div class="form-group">
+<label for="dAddress">Residential Address</label>
+<input type="text" id="dAddress">
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="dLicence">Driver's Licence Number</label>
+<input type="text" id="dLicence">
+</div>
+<div class="form-group">
+<label for="dLicenceExpiry">Licence Expiry</label>
+<input type="date" id="dLicenceExpiry">
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="dLicenceState">Licence State / Country</label>
+<input type="text" id="dLicenceState" placeholder="e.g. QLD">
+</div>
+<div class="form-group">
+<label for="dDob">Date of Birth</label>
+<input type="date" id="dDob">
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="dMobile">Mobile Number</label>
+<input type="tel" id="dMobile">
+</div>
+<div class="form-group">
+<label for="dEmail">Email</label>
+<input type="email" id="dEmail">
+</div>
+</div>
+</div>
+</div>
+
+<!-- ───── VEHICLE ───── -->
+<div class="card">
+<div class="section-label">Vehicle</div>
+<div class="section-sublabel">Rental vehicle details</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="vRego">Registration Number</label>
+<input type="text" id="vRego" required>
+</div>
+<div class="form-group">
+<label for="vOdometer">Odometer @ Check Out (km)</label>
+<input type="number" id="vOdometer" min="0" placeholder="leave blank if unknown">
+</div>
+</div>
+
+<div class="toggle-row" style="margin-top:6px">
+<input type="checkbox" id="vFuelFull" checked>
+<label for="vFuelFull">Fuel tank full at start of rental</label>
+</div>
+</div>
+
+<!-- ───── RENTAL PERIOD ───── -->
+<div class="card">
+<div class="section-label">Rental Period</div>
+<div class="section-sublabel">Start and end of agreement</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="startDate">Start Date</label>
+<input type="date" id="startDate" required>
+</div>
+<div class="form-group">
+<label for="startTime">Start Time</label>
+<input type="time" id="startTime" required>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="endDate">End Date</label>
+<input type="date" id="endDate" required>
+</div>
+<div class="form-group">
+<label for="endTime">End Time</label>
+<input type="time" id="endTime" required>
+</div>
+</div>
+
+<p class="help-text">Days are counted inclusively (the end day counts as a full rental day).</p>
+</div>
+
+<!-- ───── DAMAGE EXCESS ───── -->
+<div class="card">
+<div class="section-label">Damage Excess &amp; Security</div>
+<div class="section-sublabel">Liability amounts &mdash; defaults shown, edit if needed</div>
+
+<div class="form-group">
+<label for="damageExcess">Damage Liability Up To ($)</label>
+<div class="input-prefix">
+<input type="number" id="damageExcess" min="0" step="100" value="5000">
+</div>
+</div>
+
+<div class="form-group">
+<label for="youngDriverExcess">Additional Excess (drivers 21–24)</label>
+<div class="input-prefix">
+<input type="number" id="youngDriverExcess" min="0" step="100" value="1000">
+</div>
+</div>
+
+<div class="form-group">
+<label for="securityDeposit">Security Deposit</label>
+<div class="input-prefix">
+<input type="number" id="securityDeposit" min="0" step="50" value="100">
+</div>
+</div>
+</div>
+
+<!-- ───── RENTAL CHARGES ───── -->
+<div class="card">
+<div class="section-label">Rental Charges</div>
+<div class="section-sublabel">Enter weekly rate &mdash; everything else is calculated</div>
+
+<div class="form-group">
+<label for="weeklyRate">Weekly Rate (GST inclusive)</label>
+<div class="input-prefix">
+<input type="number" id="weeklyRate" min="0" step="0.01" placeholder="e.g. 300.00" required>
+</div>
+<p class="help-text">Daily rate (ex GST) = (weekly &divide; 7) &divide; 1.10</p>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="excessKmCharge">Excess km charge ($)</label>
+<div class="input-prefix">
+<input type="number" id="excessKmCharge" min="0" step="0.01" value="0">
+</div>
+<p class="help-text">@ $0.40 per km over 300km/day</p>
+</div>
+
+<div class="form-group">
+<label for="fuelCharge">Fuel charge ($)</label>
+<div class="input-prefix">
+<input type="number" id="fuelCharge" min="0" step="0.01" value="0">
+</div>
+<p class="help-text">@ $4.50 per litre</p>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="refuellingFee">Refuelling fee ($)</label>
+<div class="input-prefix">
+<input type="number" id="refuellingFee" min="0" step="0.01" value="0">
+</div>
+</div>
+
+<div class="form-group">
+<label for="otherCharges">Other charges ($)</label>
+<div class="input-prefix">
+<input type="number" id="otherCharges" min="0" step="0.01" value="0">
+</div>
+</div>
+</div>
+
+<!-- Live calculation preview -->
+<div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+<div class="calc-row">
+<span class="calc-label">Days Rented</span>
+<span class="calc-value" id="calcDays">—</span>
+</div>
+<div class="calc-row">
+<span class="calc-label">Daily Rate (ex GST)</span>
+<span class="calc-value" id="calcDailyRate">—</span>
+</div>
+<div class="calc-row">
+<span class="calc-label">Daily Charges (ex GST)</span>
+<span class="calc-value" id="calcDailyTotal">—</span>
+</div>
+<div class="calc-row">
+<span class="calc-label">Other Charges (ex GST)</span>
+<span class="calc-value" id="calcOther">—</span>
+</div>
+<div class="calc-row">
+<span class="calc-label">Subtotal (ex GST)</span>
+<span class="calc-value" id="calcSubtotal">—</span>
+</div>
+<div class="calc-row">
+<span class="calc-label">GST (10%)</span>
+<span class="calc-value" id="calcGst">—</span>
+</div>
+<div class="calc-row total">
+<span class="calc-label">Total (inc GST)</span>
+<span class="calc-value" id="calcTotal">—</span>
+</div>
+</div>
+</div>
+
+<button type="button" class="gen-btn" id="generateBtn">Generate Contract</button>
+
+<div class="error-message" id="errorMessage"></div>
+
+</form>
+
+<!-- ───── SUCCESS / OUTPUT CARD ───── -->
+<div class="card output-card" id="outputCard">
+<div class="success-icon" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>
+</div>
+<div class="success-title">Contract Generated</div>
+<div class="success-sub">Saved to Drive</div>
+
+<div class="success-details" id="successDetails"></div>
+
+<button type="button" class="gen-btn" id="newBtn" style="background:transparent;color:var(--gold);border:1px solid var(--gold-dim)">Create Another Contract</button>
+</div>
+
+<!-- ───── EMAIL CARD ───── -->
+<div class="card email-card" id="emailCard">
+<div class="section-label">Send Rental Terms</div>
+<div class="section-sublabel">Email the customer the rental terms</div>
+
+<div class="form-group">
+<label for="customerEmail">Customer's Email Address</label>
+<input type="email" id="customerEmail">
+<p class="help-text">Pre-filled from the renter details if provided.</p>
+</div>
+
+<button type="button" class="gen-btn" id="sendTermsBtn">Open Draft in Gmail</button>
+
+<div class="error-message" id="emailError"></div>
+</div>
+
+<div class="footer">Internal Use Only &nbsp;·&nbsp; Renaissance Rentals QLD</div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════╗
+// ║ REPLACE WITH YOUR DEPLOYED CONTRACT WORKER URL       ║
+// ║ See setup instructions for how to deploy.            ║
+// ╚══════════════════════════════════════════════════════╝
+const CONTRACT_WORKER_URL = 'https://contract-worker.renaissancerentalsqld.workers.dev';
+
+// ─── Utilities ─────────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+const fmtMoney = (n) => '$' + (Number(n) || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+
+// ─── Live calculations ─────────────────────────────────
+function calculate() {
+  const startDate = $('startDate').value;
+  const endDate = $('endDate').value;
+  const weeklyRate = parseFloat($('weeklyRate').value) || 0;
+  const excessKm = parseFloat($('excessKmCharge').value) || 0;
+  const fuel = parseFloat($('fuelCharge').value) || 0;
+  const refuel = parseFloat($('refuellingFee').value) || 0;
+  const other = parseFloat($('otherCharges').value) || 0;
+
+  let days = 0;
+  if (startDate && endDate) {
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T00:00:00');
+    const diff = Math.round((end - start) / (1000 * 60 * 60 * 24));
+    days = Math.max(0, diff + 1); // count end day inclusively
+  }
+
+  const dailyRateExGst = round2((weeklyRate / 7) / 1.10);
+  const dailyTotal = round2(dailyRateExGst * days);
+  const otherTotal = round2(excessKm + fuel + refuel + other);
+  const subtotal = round2(dailyTotal + otherTotal);
+  const gst = round2(subtotal * 0.10);
+  const total = round2(subtotal + gst);
+
+  $('calcDays').textContent = days || '—';
+  $('calcDailyRate').textContent = weeklyRate ? fmtMoney(dailyRateExGst) : '—';
+  $('calcDailyTotal').textContent = (days && weeklyRate) ? fmtMoney(dailyTotal) : '—';
+  $('calcOther').textContent = otherTotal ? fmtMoney(otherTotal) : fmtMoney(0);
+  $('calcSubtotal').textContent = subtotal ? fmtMoney(subtotal) : '—';
+  $('calcGst').textContent = subtotal ? fmtMoney(gst) : '—';
+  $('calcTotal').textContent = total ? fmtMoney(total) : '—';
+
+  return { days, dailyRateExGst, dailyTotal, otherTotal, subtotal, gst, total };
+}
+
+// Recalculate on any relevant input change
+['startDate','endDate','weeklyRate','excessKmCharge','fuelCharge','refuellingFee','otherCharges']
+  .forEach(id => $(id).addEventListener('input', calculate));
+
+// ─── Authorised driver toggle ──────────────────────────
+$('hasDriver').addEventListener('change', (e) => {
+  $('driverFields').style.display = e.target.checked ? 'block' : 'none';
+});
+
+// ─── Validation ────────────────────────────────────────
+function collectFormData() {
+  const required = ['rName','rAddress','rLicence','rLicenceExpiry','rLicenceState','rDob','rMobile','rEmail','vRego','startDate','startTime','endDate','endTime','weeklyRate'];
+  const missing = required.filter(id => !$(id).value.trim());
+  if (missing.length) {
+    return { error: 'Please fill in all required fields in the renter, vehicle, rental period and charges sections.' };
+  }
+
+  const calc = calculate();
+  if (!calc.days || calc.days <= 0) {
+    return { error: 'End date must be on or after the start date.' };
+  }
+  if (calc.total <= 0) {
+    return { error: 'Weekly rate must be greater than zero.' };
+  }
+
+  const data = {
+    renter: {
+      name: $('rName').value.trim(),
+      address: $('rAddress').value.trim(),
+      licence: $('rLicence').value.trim(),
+      licenceExpiry: $('rLicenceExpiry').value,
+      licenceState: $('rLicenceState').value.trim(),
+      dob: $('rDob').value,
+      mobile: $('rMobile').value.trim(),
+      email: $('rEmail').value.trim(),
+    },
+    authorisedDriver: $('hasDriver').checked ? {
+      name: $('dName').value.trim(),
+      address: $('dAddress').value.trim(),
+      licence: $('dLicence').value.trim(),
+      licenceExpiry: $('dLicenceExpiry').value,
+      licenceState: $('dLicenceState').value.trim(),
+      dob: $('dDob').value,
+      mobile: $('dMobile').value.trim(),
+      email: $('dEmail').value.trim(),
+    } : null,
+    vehicle: {
+      rego: $('vRego').value.trim(),
+      odometer: $('vOdometer').value.trim(),
+      fuelFull: $('vFuelFull').checked,
+    },
+    period: {
+      startDate: $('startDate').value,
+      startTime: $('startTime').value,
+      endDate: $('endDate').value,
+      endTime: $('endTime').value,
+    },
+    excess: {
+      damageExcess: parseFloat($('damageExcess').value) || 0,
+      youngDriverExcess: parseFloat($('youngDriverExcess').value) || 0,
+      securityDeposit: parseFloat($('securityDeposit').value) || 0,
+    },
+    charges: {
+      weeklyRate: parseFloat($('weeklyRate').value) || 0,
+      excessKmCharge: parseFloat($('excessKmCharge').value) || 0,
+      fuelCharge: parseFloat($('fuelCharge').value) || 0,
+      refuellingFee: parseFloat($('refuellingFee').value) || 0,
+      otherCharges: parseFloat($('otherCharges').value) || 0,
+      days: calc.days,
+      dailyRateExGst: calc.dailyRateExGst,
+      dailyTotal: calc.dailyTotal,
+      otherTotal: calc.otherTotal,
+      subtotal: calc.subtotal,
+      gst: calc.gst,
+      total: calc.total,
+    },
+    submittedAt: new Date().toISOString(),
+  };
+
+  return { data };
+}
+
+// ─── Submit ────────────────────────────────────────────
+function showError(msg) {
+  const el = $('errorMessage');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function clearError() { $('errorMessage').classList.remove('show'); }
+
+$('generateBtn').addEventListener('click', async function() {
+  clearError();
+  const { error, data } = collectFormData();
+  if (error) { showError(error); return; }
+
+  const btn = this;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generating contract…';
+
+  try {
+    const response = await fetch(CONTRACT_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'generate', payload: data }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Server returned ' + response.status);
+    }
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error || 'Unknown error');
+
+    // Show success card
+    document.getElementById('contractForm').style.display = 'none';
+    const out = $('outputCard');
+    $('successDetails').innerHTML = `
+      <strong>${data.renter.name}</strong><br>
+      Vehicle: ${data.vehicle.rego}<br>
+      Period: ${data.period.startDate} → ${data.period.endDate} (${data.charges.days} days)<br>
+      Total: <strong>${fmtMoney(data.charges.total)}</strong><br>
+      ${result.fileName ? '<br>File: <strong>' + result.fileName + '</strong>' : ''}
+    `;
+    out.classList.add('show');
+
+    // Pre-fill email + show email card
+    if (data.renter.email) $('customerEmail').value = data.renter.email;
+    $('emailCard').classList.add('show');
+
+    window.scrollTo({ top: out.offsetTop - 20, behavior: 'smooth' });
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = originalText;
+    showError('Could not generate contract: ' + err.message);
+  }
+});
+
+$('newBtn').addEventListener('click', () => location.reload());
+
+// ─── Send Terms email (Gmail draft) ────────────────────
+$('sendTermsBtn').addEventListener('click', async function() {
+  $('emailError').classList.remove('show');
+  const customerEmail = $('customerEmail').value.trim();
+  if (!customerEmail || !customerEmail.includes('@')) {
+    $('emailError').textContent = 'Please enter a valid customer email address.';
+    $('emailError').classList.add('show');
+    return;
+  }
+
+  const btn = this;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Preparing draft…';
+
+  try {
+    const response = await fetch(CONTRACT_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'sendTerms',
+        payload: {
+          customerEmail,
+          customerName: $('rName').value.trim() || 'Customer',
+        },
+      }),
+    });
+    if (!response.ok) throw new Error('Server returned ' + response.status);
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error || 'Failed to create draft');
+
+    if (result.draftUrl) {
+      window.open(result.draftUrl, '_blank', 'noopener');
+      btn.textContent = 'Draft opened in Gmail ✓';
+    } else {
+      btn.textContent = 'Draft created — check your Gmail Drafts folder ✓';
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = originalText;
+    $('emailError').textContent = 'Could not create draft: ' + err.message;
+    $('emailError').classList.add('show');
+  }
+});
+
+// Initial calc render
+calculate();
+</script>
+
+</body>
+</html>
