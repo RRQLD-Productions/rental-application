@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Incidentals — Renaissance Rentals Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111;--border:#222;--text-secondary:#999;--error:#d46a6a;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+.page-wrapper{max-width:760px;margin:0 auto;padding:48px 24px 60px}
+.header{text-align:center;margin-bottom:40px}
+.logo{display:block;width:80px;height:auto;margin:0 auto 18px}
+.header h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.header .tagline{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.back-link{display:inline-block;margin-bottom:20px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+.back-link:hover{color:var(--gold)}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:22px}
+.card h2{font-family:var(--serif);font-size:1.25rem;letter-spacing:.06em;margin-bottom:14px;color:var(--white);font-weight:400}
+.card p.hint{font-size:.85rem;color:var(--text-secondary);margin-bottom:18px}
+.drop{
+border:1px dashed var(--gold-dim);border-radius:2px;
+padding:36px 20px;text-align:center;cursor:pointer;
+transition:border-color .2s,background .2s;
+}
+.drop:hover,.drop.drag{border-color:var(--gold);background:rgba(201,168,76,0.05)}
+.drop-label{font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold)}
+.drop-sub{font-size:.8rem;color:var(--text-secondary);margin-top:8px}
+.file-name{margin-top:12px;font-size:.85rem;color:var(--white)}
+input[type=file]{display:none}
+button{
+font-family:var(--sans);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;
+background:var(--gold);color:var(--black);border:none;border-radius:2px;
+padding:14px 24px;cursor:pointer;font-weight:500;
+transition:background .2s;
+}
+button:hover{background:var(--gold-dim);color:var(--white)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.stat{background:#0a0a0a;border:1px solid var(--border);padding:14px;border-radius:2px;text-align:center}
+.stat .val{font-family:var(--serif);font-size:1.4rem;color:var(--gold);font-weight:500}
+.stat .lbl{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.9rem}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:500}
+td.amt{text-align:right;font-variant-numeric:tabular-nums}
+td.rego{font-family:monospace;font-size:.95rem}
+tr.totals td{font-weight:600;border-top:1px solid var(--gold-dim);border-bottom:none;color:var(--gold)}
+tr.unknown td.rego{color:var(--error);font-style:italic}
+textarea.copy{
+width:100%;min-height:140px;margin-top:14px;
+font-family:monospace;font-size:.9rem;
+background:#0a0a0a;color:var(--white);
+border:1px solid var(--border);border-radius:2px;
+padding:10px 12px;resize:vertical;
+}
+textarea.copy:focus{outline:none;border-color:var(--gold-dim)}
+.copy-row{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.copy-row button{padding:10px 18px}
+.copy-hint{font-size:.72rem;color:var(--text-secondary)}
+.error{color:var(--error);font-size:.85rem;margin-top:10px;display:none}
+.error.show{display:block}
+.hidden{display:none}
+.footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
+@media (max-width:520px){
+.summary{grid-template-columns:1fr}
+th,td{padding:8px 6px;font-size:.82rem}
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<a class="back-link" href="staff.html">← Back to Staff Tools</a>
+
+<div class="header">
+<img src="assets/rr-logo.png" alt="Renaissance Rentals" class="logo">
+<h1>Incidentals</h1>
+<div class="tagline">Linkt Tolls — Per Rego Totals</div>
+</div>
+
+<div class="card">
+<h2>Upload Linkt CSV</h2>
+<p class="hint">Drop the CSV exported from Linkt (all cars, any date range). The tool parses it in your browser — nothing is uploaded.</p>
+
+<label class="drop" id="drop">
+<input type="file" id="fileInput" accept=".csv,text/csv">
+<div class="drop-label">Choose CSV or drop here</div>
+<div class="drop-sub">Linkt "All Cars" export</div>
+<div class="file-name" id="fileName"></div>
+</label>
+
+<div class="error" id="err"></div>
+</div>
+
+<div class="card hidden" id="results">
+<h2>Per-Rego Totals</h2>
+
+<div class="summary">
+<div class="stat"><div class="val" id="statRows">0</div><div class="lbl">Trips</div></div>
+<div class="stat"><div class="val" id="statRegos">0</div><div class="lbl">Regos</div></div>
+<div class="stat"><div class="val" id="statTotal">$0.00</div><div class="lbl">Grand Total</div></div>
+</div>
+
+<table id="resultsTable">
+<thead><tr><th>Rego</th><th>Trips</th><th style="text-align:right">Total</th></tr></thead>
+<tbody></tbody>
+</table>
+
+<div class="copy-row">
+<button type="button" id="copyBtn">Copy for Google Sheets</button>
+<span class="copy-hint">Tab-separated — paste directly into a sheet</span>
+</div>
+<textarea class="copy" id="copyArea" readonly aria-label="Copy-paste area"></textarea>
+</div>
+
+<div class="footer">Internal Use Only · Renaissance Rentals QLD</div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+const drop = $('drop');
+const fileInput = $('fileInput');
+const errEl = $('err');
+
+['dragenter','dragover'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add('drag'); }));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove('drag'); }));
+drop.addEventListener('drop', (ev) => {
+  const file = ev.dataTransfer?.files?.[0];
+  if (file) handleFile(file);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+
+function showError(msg) {
+  errEl.textContent = msg;
+  errEl.classList.add('show');
+}
+function clearError() {
+  errEl.classList.remove('show');
+  errEl.textContent = '';
+}
+
+async function handleFile(file) {
+  clearError();
+  $('fileName').textContent = file.name;
+  try {
+    const text = await file.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw new Error('CSV appears empty.');
+    const header = rows[0].map(h => h.trim());
+    const lpnIdx = header.findIndex(h => /LPN/i.test(h));
+    const tagIdx = header.findIndex(h => /Tag/i.test(h));
+    const amtIdx = header.findIndex(h => /Amount/i.test(h));
+    if (lpnIdx === -1 || amtIdx === -1) {
+      throw new Error('Missing expected "LPN" or "Amount" column. Is this a Linkt export?');
+    }
+    const totals = new Map(); // key -> {trips, total, isUnknown}
+    let tripCount = 0;
+    let grand = 0;
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || r.every(c => !c || !c.trim())) continue; // skip blank lines
+      const amt = parseFloat(r[amtIdx]);
+      if (isNaN(amt)) continue;
+      const lpn = (r[lpnIdx] || '').trim();
+      const tag = tagIdx >= 0 ? (r[tagIdx] || '').trim() : '';
+      let key, isUnknown = false;
+      if (lpn) {
+        key = lpn.toUpperCase();
+      } else if (tag) {
+        key = 'Unknown (Tag: ' + tag + ')';
+        isUnknown = true;
+      } else {
+        key = 'Unknown';
+        isUnknown = true;
+      }
+      const entry = totals.get(key) || { trips: 0, total: 0, isUnknown };
+      entry.trips += 1;
+      entry.total += Math.abs(amt);
+      totals.set(key, entry);
+      tripCount += 1;
+      grand += Math.abs(amt);
+    }
+    render(totals, tripCount, grand);
+  } catch (e) {
+    showError('Could not parse file: ' + e.message);
+  }
+}
+
+// RFC 4180 CSV parser, handles quoted fields with embedded commas, quotes (""), and newlines.
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  let i = 0;
+  // strip BOM
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  while (i < text.length) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"') { inQuotes = true; i++; continue; }
+    if (c === ',') { row.push(field); field = ''; i++; continue; }
+    if (c === '\r') { i++; continue; }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += c; i++;
+  }
+  // trailing field / row
+  if (field.length || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows;
+}
+
+function render(totals, tripCount, grand) {
+  const entries = [...totals.entries()].sort((a, b) => {
+    // Unknowns at bottom
+    if (a[1].isUnknown !== b[1].isUnknown) return a[1].isUnknown ? 1 : -1;
+    return a[0].localeCompare(b[0]);
+  });
+
+  $('results').classList.remove('hidden');
+  $('statRows').textContent = tripCount;
+  $('statRegos').textContent = entries.length;
+  $('statTotal').textContent = fmtMoney(grand);
+
+  const tbody = document.querySelector('#resultsTable tbody');
+  tbody.innerHTML = '';
+  for (const [key, v] of entries) {
+    const tr = document.createElement('tr');
+    if (v.isUnknown) tr.className = 'unknown';
+    tr.innerHTML = `<td class="rego">${escapeHtml(key)}</td><td>${v.trips}</td><td class="amt">${fmtMoney(v.total)}</td>`;
+    tbody.appendChild(tr);
+  }
+  // totals row
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'totals';
+  totalTr.innerHTML = `<td>TOTAL</td><td>${tripCount}</td><td class="amt">${fmtMoney(grand)}</td>`;
+  tbody.appendChild(totalTr);
+
+  // Copy-paste TSV (Rego<TAB>Amount) — easiest form for Sheets
+  const tsvLines = entries.map(([key, v]) => `${key}\t${v.total.toFixed(2)}`);
+  $('copyArea').value = tsvLines.join('\n');
+}
+
+function fmtMoney(n) {
+  return '$' + (Number(n) || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+$('copyBtn').addEventListener('click', async () => {
+  const ta = $('copyArea');
+  ta.select();
+  try {
+    await navigator.clipboard.writeText(ta.value);
+    const btn = $('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  } catch {
+    document.execCommand('copy');
+  }
+});
+</script>
+</body>
+</html>
