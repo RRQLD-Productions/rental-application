@@ -93,12 +93,12 @@ th,td{padding:8px 6px;font-size:.82rem}
 <h2>Upload Linkt CSV</h2>
 <p class="hint">Drop the CSV exported from Linkt (all cars, any date range). The tool parses it in your browser — nothing is uploaded.</p>
 
-<label class="drop" id="drop">
-<input type="file" id="fileInput" accept=".csv,text/csv">
+<div class="drop" id="drop" role="button" tabindex="0" aria-label="Choose or drop CSV file">
 <div class="drop-label">Choose CSV or drop here</div>
 <div class="drop-sub">Linkt "All Cars" export</div>
 <div class="file-name" id="fileName"></div>
-</label>
+</div>
+<input type="file" id="fileInput" accept=".csv,text/csv">
 
 <div class="error" id="err"></div>
 </div>
@@ -140,6 +140,10 @@ const errEl = $('err');
 drop.addEventListener('drop', (ev) => {
   const file = ev.dataTransfer?.files?.[0];
   if (file) handleFile(file);
+});
+drop.addEventListener('click', () => fileInput.click());
+drop.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileInput.click(); }
 });
 fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) handleFile(fileInput.files[0]);
