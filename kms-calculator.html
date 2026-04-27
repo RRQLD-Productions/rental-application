@@ -52,6 +52,14 @@ transition:border-color .2s;
 .result-item.highlight .val{font-size:1.8rem}
 .result-item.ok .val{color:var(--green)}
 .result-item.over .val{color:var(--error)}
+.proj-hint{font-size:.85rem;color:var(--text-secondary);margin-bottom:18px}
+.proj-output{margin-top:20px;background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:22px 24px;line-height:1.9;font-size:.95rem;display:none}
+.proj-output.show{display:block}
+.proj-output .line{margin-bottom:6px}
+.proj-output .highlight{color:var(--gold);font-weight:500}
+.proj-output .green{color:var(--green);font-weight:500}
+.proj-output .red{color:var(--error);font-weight:500}
+.proj-output .big{font-family:var(--serif);font-size:1.15rem}
 .footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
 @media (max-width:480px){
 .form-row{flex-direction:column;gap:12px}
@@ -143,6 +151,18 @@ transition:border-color .2s;
 </div>
 </div>
 
+<div class="card" id="projectionCard" style="display:none">
+<h2>KMs Remaining Projection</h2>
+<p class="proj-hint">Enter the projected end date to see how many kilometres the renter has left and their pace.</p>
+<div class="form-row">
+<div class="field">
+<label for="projEndDate">Projected End Date</label>
+<input type="date" id="projEndDate">
+</div>
+</div>
+<div class="proj-output" id="projOutput"></div>
+</div>
+
 <div class="footer">Internal Use Only &middot; Renaissance Rentals QLD</div>
 
 </div>
@@ -151,7 +171,8 @@ transition:border-color .2s;
 const $ = (id) => document.getElementById(id);
 
 const fields = ['startDate','endDate','numDays','dailyLimit','perKmRate','startKm','currentKm'];
-fields.forEach(id => $(id).addEventListener('input', calculate));
+fields.forEach(id => $(id).addEventListener('input', () => { calculate(); calcProjection(); }));
+$('projEndDate').addEventListener('input', calcProjection);
 
 // Date range → auto-fill days
 $('startDate').addEventListener('change', syncDays);
@@ -178,6 +199,7 @@ function syncDays() {
     }
   }
   calculate();
+  calcProjection();
 }
 
 function calculate() {
@@ -229,6 +251,72 @@ function calculate() {
   }
 
   $('resultCard').classList.add('show');
+  // Show projection card once we have results
+  $('projectionCard').style.display = '';
+}
+
+function calcProjection() {
+  const projOut = $('projOutput');
+  const projDate = $('projEndDate').value;
+  const startDateVal = $('startDate').value;
+  const startKm = parseFloat($('startKm').value);
+  const currentKm = parseFloat($('currentKm').value);
+  const limit = parseFloat($('dailyLimit').value);
+
+  if (!projDate || !startDateVal || isNaN(startKm) || isNaN(currentKm) || isNaN(limit)) {
+    projOut.classList.remove('show');
+    return;
+  }
+
+  const startD = new Date(startDateVal);
+  const projD = new Date(projDate);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  if (projD <= startD) {
+    projOut.classList.remove('show');
+    return;
+  }
+
+  const totalDays = Math.round((projD - startD) / 86400000) + 1; // inclusive
+  const totalAllowance = totalDays * limit;
+  const totalDriven = currentKm - startKm;
+
+  if (totalDriven < 0) {
+    projOut.classList.remove('show');
+    return;
+  }
+
+  // Days elapsed so far (inclusive of start date up to today)
+  const daysElapsed = Math.max(1, Math.round((today - startD) / 86400000) + 1);
+  const avgPerDay = totalDriven / daysElapsed;
+
+  // Remaining
+  const daysRemaining = totalDays - daysElapsed;
+  const kmRemaining = totalAllowance - totalDriven;
+
+  const fmtNum = (n) => n.toLocaleString('en-AU');
+  const fmtDec = (n) => n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  let html = '';
+
+  html += `<div class="line">His rental is <span class="highlight big">${fmtNum(totalDays)} days</span> total</div>`;
+
+  html += `<div class="line">@ <span class="highlight">${fmtNum(limit)} km</span> a day his total allowance is <span class="highlight">${fmtNum(totalAllowance)} km</span> for free</div>`;
+
+  html += `<div class="line">He has currently driven <span class="highlight">${fmtNum(totalDriven)} km</span> over <span class="highlight">${fmtNum(daysElapsed)} days</span> @ <span class="highlight">${fmtDec(avgPerDay)} km/day</span></div>`;
+
+  if (daysRemaining > 0 && kmRemaining > 0) {
+    const allowedPerDayRemaining = kmRemaining / daysRemaining;
+    html += `<div class="line">He has <span class="green">${fmtNum(kmRemaining)} km remaining</span> for the next <span class="highlight">${fmtNum(daysRemaining)} days</span> (<span class="green">${fmtDec(allowedPerDayRemaining)} km/day</span>)</div>`;
+  } else if (kmRemaining <= 0) {
+    html += `<div class="line">He is <span class="red">${fmtNum(Math.abs(kmRemaining))} km over</span> his allowance with <span class="highlight">${fmtNum(Math.max(0, daysRemaining))} days</span> still remaining</div>`;
+  } else {
+    html += `<div class="line">He has <span class="green">${fmtNum(kmRemaining)} km remaining</span> (rental period ended)</div>`;
+  }
+
+  projOut.innerHTML = html;
+  projOut.classList.add('show');
 }
 </script>
 </body>
