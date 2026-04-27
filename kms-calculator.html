@@ -153,7 +153,13 @@ transition:border-color .2s;
 
 <div class="card" id="projectionCard" style="display:none">
 <h2>KMs Remaining Projection</h2>
-<p class="proj-hint">Enter the projected end date to see how many kilometres the renter has left and their pace.</p>
+<p class="proj-hint">Enter the client's name and projected end date to generate a summary you can screenshot and send.</p>
+<div class="form-row">
+<div class="field">
+<label for="clientName">Client Name</label>
+<input type="text" id="clientName" placeholder="e.g. John Smith">
+</div>
+</div>
 <div class="form-row">
 <div class="field">
 <label for="projEndDate">Projected End Date</label>
@@ -173,6 +179,7 @@ const $ = (id) => document.getElementById(id);
 const fields = ['startDate','endDate','numDays','dailyLimit','perKmRate','startKm','currentKm'];
 fields.forEach(id => $(id).addEventListener('input', () => { calculate(); calcProjection(); }));
 $('projEndDate').addEventListener('input', calcProjection);
+$('clientName').addEventListener('input', calcProjection);
 
 // Date range → auto-fill days
 $('startDate').addEventListener('change', syncDays);
@@ -298,21 +305,26 @@ function calcProjection() {
   const fmtNum = (n) => n.toLocaleString('en-AU');
   const fmtDec = (n) => n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  const name = $('clientName').value.trim() || 'The renter';
+  const firstName = name.split(' ')[0];
+
   let html = '';
 
-  html += `<div class="line">His rental is <span class="highlight big">${fmtNum(totalDays)} days</span> total</div>`;
+  html += `<div class="line"><span class="highlight big">${name}</span> — Kilometre Usage Summary</div>`;
 
-  html += `<div class="line">@ <span class="highlight">${fmtNum(limit)} km</span> a day his total allowance is <span class="highlight">${fmtNum(totalAllowance)} km</span> for free</div>`;
+  html += `<div class="line">Total rental period: <span class="highlight">${fmtNum(totalDays)} days</span></div>`;
 
-  html += `<div class="line">He has currently driven <span class="highlight">${fmtNum(totalDriven)} km</span> over <span class="highlight">${fmtNum(daysElapsed)} days</span> @ <span class="highlight">${fmtDec(avgPerDay)} km/day</span></div>`;
+  html += `<div class="line">Daily allowance: <span class="highlight">${fmtNum(limit)} km/day</span> — Total allowance: <span class="highlight">${fmtNum(totalAllowance)} km</span></div>`;
+
+  html += `<div class="line">${firstName} has driven <span class="highlight">${fmtNum(totalDriven)} km</span> over <span class="highlight">${fmtNum(daysElapsed)} days</span>, averaging <span class="highlight">${fmtDec(avgPerDay)} km/day</span></div>`;
 
   if (daysRemaining > 0 && kmRemaining > 0) {
     const allowedPerDayRemaining = kmRemaining / daysRemaining;
-    html += `<div class="line">He has <span class="green">${fmtNum(kmRemaining)} km remaining</span> for the next <span class="highlight">${fmtNum(daysRemaining)} days</span> (<span class="green">${fmtDec(allowedPerDayRemaining)} km/day</span>)</div>`;
+    html += `<div class="line">${firstName} has <span class="green">${fmtNum(kmRemaining)} km remaining</span> over the next <span class="highlight">${fmtNum(daysRemaining)} days</span> (<span class="green">${fmtDec(allowedPerDayRemaining)} km/day</span> to stay within allowance)</div>`;
   } else if (kmRemaining <= 0) {
-    html += `<div class="line">He is <span class="red">${fmtNum(Math.abs(kmRemaining))} km over</span> his allowance with <span class="highlight">${fmtNum(Math.max(0, daysRemaining))} days</span> still remaining</div>`;
+    html += `<div class="line">${firstName} is currently <span class="red">${fmtNum(Math.abs(kmRemaining))} km over</span> the allowance with <span class="highlight">${fmtNum(Math.max(0, daysRemaining))} days</span> remaining in the rental period</div>`;
   } else {
-    html += `<div class="line">He has <span class="green">${fmtNum(kmRemaining)} km remaining</span> (rental period ended)</div>`;
+    html += `<div class="line">${firstName} has <span class="green">${fmtNum(kmRemaining)} km remaining</span> (rental period ended)</div>`;
   }
 
   projOut.innerHTML = html;
