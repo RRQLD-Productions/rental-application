@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>KMs Calculator — Renaissance Rentals Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111;--border:#222;--text-secondary:#999;--error:#d46a6a;--green:#5cb85c;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+.page-wrapper{max-width:560px;margin:0 auto;padding:48px 24px 60px}
+.header{text-align:center;margin-bottom:40px}
+.logo{display:block;width:80px;height:auto;margin:0 auto 18px}
+.header h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.header .tagline{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.back-link{display:inline-block;margin-bottom:20px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+.back-link:hover{color:var(--gold)}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:22px}
+.card h2{font-family:var(--serif);font-size:1.25rem;letter-spacing:.06em;margin-bottom:18px;color:var(--white);font-weight:400}
+.form-row{display:flex;gap:14px;margin-bottom:16px}
+.form-row.single{flex-direction:column}
+.field{flex:1;display:flex;flex-direction:column}
+.field label{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-weight:500}
+.field input{
+background:#0a0a0a;border:1px solid var(--border);border-radius:2px;
+color:var(--white);font-family:var(--sans);font-size:.95rem;
+padding:12px 14px;width:100%;
+transition:border-color .2s;
+}
+.field input:focus{outline:none;border-color:var(--gold-dim)}
+.field input::placeholder{color:#555}
+.field .hint{font-size:.72rem;color:var(--text-secondary);margin-top:4px}
+.divider-line{height:1px;background:var(--border);margin:24px 0}
+.result-card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:22px;display:none}
+.result-card.show{display:block}
+.result-card h2{font-family:var(--serif);font-size:1.25rem;letter-spacing:.06em;margin-bottom:18px;color:var(--white);font-weight:400}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.result-item{background:#0a0a0a;border:1px solid var(--border);padding:16px;border-radius:2px}
+.result-item .val{font-family:var(--serif);font-size:1.5rem;color:var(--gold);font-weight:500}
+.result-item .lbl{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);margin-top:4px}
+.result-item.full{grid-column:1/-1}
+.result-item.highlight{border-color:var(--gold-dim)}
+.result-item.highlight .val{font-size:1.8rem}
+.result-item.ok .val{color:var(--green)}
+.result-item.over .val{color:var(--error)}
+.footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
+@media (max-width:480px){
+.form-row{flex-direction:column;gap:12px}
+.result-grid{grid-template-columns:1fr}
+.result-item.full{grid-column:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<a class="back-link" href="staff.html">&larr; Back to Staff Tools</a>
+
+<div class="header">
+<img src="assets/rr-logo.png" alt="Renaissance Rentals" class="logo">
+<h1>KMs Calculator</h1>
+<div class="tagline">Excess Kilometre Charges</div>
+</div>
+
+<div class="card">
+<h2>Rental Period</h2>
+<div class="form-row">
+<div class="field">
+<label for="startDate">Start Date</label>
+<input type="date" id="startDate">
+</div>
+<div class="field">
+<label for="endDate">End Date</label>
+<input type="date" id="endDate">
+</div>
+</div>
+<div class="form-row">
+<div class="field">
+<label for="numDays">Number of Days</label>
+<input type="number" id="numDays" min="1" placeholder="Auto-fills from dates">
+<div class="hint">Includes start &amp; end date</div>
+</div>
+</div>
+
+<div class="divider-line"></div>
+
+<h2>Rate Settings</h2>
+<div class="form-row">
+<div class="field">
+<label for="dailyLimit">Daily KM Limit</label>
+<input type="number" id="dailyLimit" value="300" min="0" step="1">
+</div>
+<div class="field">
+<label for="perKmRate">Rate Over Limit ($/km)</label>
+<input type="number" id="perKmRate" value="0.40" min="0" step="0.01">
+</div>
+</div>
+
+<div class="divider-line"></div>
+
+<h2>Odometer</h2>
+<div class="form-row">
+<div class="field">
+<label for="startKm">Starting KMs</label>
+<input type="number" id="startKm" min="0" placeholder="e.g. 45230">
+</div>
+<div class="field">
+<label for="currentKm">Current KMs</label>
+<input type="number" id="currentKm" min="0" placeholder="e.g. 49180">
+</div>
+</div>
+</div>
+
+<div class="result-card" id="resultCard">
+<h2>Result</h2>
+<div class="result-grid">
+<div class="result-item">
+<div class="val" id="rTotalDriven">—</div>
+<div class="lbl">Total KMs Driven</div>
+</div>
+<div class="result-item">
+<div class="val" id="rAllowance">—</div>
+<div class="lbl">KM Allowance</div>
+</div>
+<div class="result-item" id="overUnderItem">
+<div class="val" id="rOverUnder">—</div>
+<div class="lbl" id="rOverUnderLabel">KMs Over / Under</div>
+</div>
+<div class="result-item highlight" id="chargeItem">
+<div class="val" id="rCharge">—</div>
+<div class="lbl">Amount to Invoice</div>
+</div>
+</div>
+</div>
+
+<div class="footer">Internal Use Only &middot; Renaissance Rentals QLD</div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+const fields = ['startDate','endDate','numDays','dailyLimit','perKmRate','startKm','currentKm'];
+fields.forEach(id => $(id).addEventListener('input', calculate));
+
+// Date range → auto-fill days
+$('startDate').addEventListener('change', syncDays);
+$('endDate').addEventListener('change', syncDays);
+
+// Days → clear dates if manually typed
+$('numDays').addEventListener('input', () => {
+  // Only clear dates if user is actively typing days
+  if (document.activeElement === $('numDays')) {
+    // Don't clear — let dates remain for reference
+  }
+});
+
+function syncDays() {
+  const s = $('startDate').value;
+  const e = $('endDate').value;
+  if (s && e) {
+    const start = new Date(s);
+    const end = new Date(e);
+    if (end >= start) {
+      const diffMs = end - start;
+      const days = Math.round(diffMs / 86400000) + 1; // inclusive of both days
+      $('numDays').value = days;
+    }
+  }
+  calculate();
+}
+
+function calculate() {
+  const days = parseInt($('numDays').value);
+  const limit = parseFloat($('dailyLimit').value);
+  const rate = parseFloat($('perKmRate').value);
+  const startKm = parseFloat($('startKm').value);
+  const currentKm = parseFloat($('currentKm').value);
+
+  if (!days || days < 1 || isNaN(limit) || isNaN(rate) || isNaN(startKm) || isNaN(currentKm)) {
+    $('resultCard').classList.remove('show');
+    return;
+  }
+
+  const totalDriven = currentKm - startKm;
+  if (totalDriven < 0) {
+    $('resultCard').classList.remove('show');
+    return;
+  }
+
+  const allowance = days * limit;
+  const over = totalDriven - allowance;
+  const charge = over > 0 ? over * rate : 0;
+
+  $('rTotalDriven').textContent = totalDriven.toLocaleString('en-AU') + ' km';
+  $('rAllowance').textContent = allowance.toLocaleString('en-AU') + ' km';
+
+  const overUnderItem = $('overUnderItem');
+  overUnderItem.classList.remove('ok', 'over');
+
+  if (over > 0) {
+    $('rOverUnder').textContent = '+' + over.toLocaleString('en-AU') + ' km';
+    $('rOverUnderLabel').textContent = 'KMs Over Limit';
+    overUnderItem.classList.add('over');
+  } else {
+    $('rOverUnder').textContent = Math.abs(over).toLocaleString('en-AU') + ' km remaining';
+    $('rOverUnderLabel').textContent = 'KMs Under Limit';
+    overUnderItem.classList.add('ok');
+  }
+
+  const chargeItem = $('chargeItem');
+  chargeItem.classList.remove('ok', 'over');
+  if (charge > 0) {
+    $('rCharge').textContent = '$' + charge.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    chargeItem.classList.add('over');
+  } else {
+    $('rCharge').textContent = '$0.00';
+    chargeItem.classList.add('ok');
+  }
+
+  $('resultCard').classList.add('show');
+}
+</script>
+</body>
+</html>
