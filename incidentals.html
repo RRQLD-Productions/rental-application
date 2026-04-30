@@ -54,8 +54,20 @@ th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
 th{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:500}
 td.amt{text-align:right;font-variant-numeric:tabular-nums}
 td.rego{font-family:monospace;font-size:.95rem}
+td.split-cell{text-align:right;padding-right:8px}
 tr.totals td{font-weight:600;border-top:1px solid var(--gold-dim);border-bottom:none;color:var(--gold)}
 tr.unknown td.rego{color:var(--error);font-style:italic}
+tr.rego-selected{background:rgba(201,168,76,0.07)}
+tr.rego-selected td.rego{color:var(--gold)}
+.split-btn{
+font-size:.6rem;letter-spacing:.15em;padding:5px 10px;
+background:transparent;color:var(--text-secondary);
+border:1px solid var(--border);border-radius:2px;
+font-weight:500;text-transform:uppercase;
+transition:all .15s;white-space:nowrap;
+}
+.split-btn:hover{background:rgba(201,168,76,0.08);border-color:var(--gold-dim);color:var(--gold)}
+.split-btn.active{background:rgba(201,168,76,0.12);border-color:var(--gold);color:var(--gold)}
 textarea.copy{
 width:100%;min-height:140px;margin-top:14px;
 font-family:monospace;font-size:.9rem;
@@ -71,9 +83,68 @@ textarea.copy:focus{outline:none;border-color:var(--gold-dim)}
 .error.show{display:block}
 .hidden{display:none}
 .footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
-@media (max-width:520px){
+
+/* ── Trip Splitter ── */
+.split-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.split-rego-badge{font-family:monospace;font-size:1.1rem;color:var(--gold);background:#0a0a0a;border:1px solid var(--gold-dim);border-radius:2px;padding:5px 14px;letter-spacing:.1em}
+.split-total-badge{font-size:.8rem;color:var(--text-secondary)}
+.multi-trip-toggle{display:flex;align-items:center;gap:10px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.multi-trip-toggle label{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--white);cursor:pointer;user-select:none}
+/* Custom checkbox */
+.checkbox-wrap{position:relative;display:inline-flex;align-items:center;cursor:pointer}
+.checkbox-wrap input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+.checkbox-box{width:18px;height:18px;border:1px solid var(--gold-dim);border-radius:2px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.checkbox-wrap input[type=checkbox]:checked + .checkbox-box{background:var(--gold);border-color:var(--gold)}
+.checkbox-box::after{content:'';width:5px;height:9px;border-right:2px solid var(--black);border-bottom:2px solid var(--black);transform:rotate(45deg) translate(-1px,-1px);display:none}
+.checkbox-wrap input[type=checkbox]:checked + .checkbox-box::after{display:block}
+
+#tripsList{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.trip-row{background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:16px 18px;display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center}
+.trip-row:hover{border-color:#333}
+.trip-name-input{
+font-family:var(--sans);font-size:.85rem;font-weight:300;
+background:transparent;color:var(--white);
+border:none;border-bottom:1px solid var(--border);
+padding:4px 0;outline:none;width:100%;
+transition:border-color .15s;
+}
+.trip-name-input:focus{border-color:var(--gold-dim)}
+.trip-name-input::placeholder{color:#555}
+.trip-date-wrap{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-secondary)}
+.trip-date-input{
+font-family:var(--sans);font-size:.78rem;
+background:#0a0a0a;color:var(--white);
+border:1px solid var(--border);border-radius:2px;
+padding:5px 8px;outline:none;cursor:pointer;
+transition:border-color .15s;
+color-scheme:dark;
+}
+.trip-date-input:focus{border-color:var(--gold-dim)}
+.trip-amount{font-family:var(--serif);font-size:1.1rem;color:var(--gold);font-weight:500;text-align:right;min-width:80px;white-space:nowrap}
+.trip-remove{
+background:transparent;color:#555;border:none;padding:4px 8px;
+font-size:1rem;letter-spacing:0;text-transform:none;
+line-height:1;border-radius:2px;
+transition:color .15s;
+}
+.trip-remove:hover{background:transparent;color:var(--error)}
+.trip-unallocated{font-size:.75rem;color:var(--text-secondary);padding:6px 0;border-top:1px solid var(--border);margin-top:4px}
+.trip-unallocated.warn{color:#f59e0b}
+.add-trip-btn{
+background:transparent;color:var(--gold-dim);border:1px dashed var(--gold-dim);
+font-size:.7rem;letter-spacing:.2em;padding:10px 20px;
+border-radius:2px;transition:all .15s;
+}
+.add-trip-btn:hover{background:rgba(201,168,76,0.06);color:var(--gold);border-color:var(--gold)}
+
+.split-output-section{margin-top:20px;border-top:1px solid var(--border);padding-top:18px}
+.split-output-section h3{font-family:var(--serif);font-size:1rem;letter-spacing:.06em;color:var(--white);font-weight:400;margin-bottom:10px}
+
+@media (max-width:600px){
 .summary{grid-template-columns:1fr}
 th,td{padding:8px 6px;font-size:.82rem}
+.trip-row{grid-template-columns:1fr;gap:8px}
+.trip-date-wrap{flex-wrap:wrap}
 }
 </style>
 </head>
@@ -103,6 +174,7 @@ th,td{padding:8px 6px;font-size:.82rem}
 <div class="error" id="err"></div>
 </div>
 
+<!-- Results table -->
 <div class="card hidden" id="results">
 <h2>Per-Rego Totals</h2>
 
@@ -113,7 +185,7 @@ th,td{padding:8px 6px;font-size:.82rem}
 </div>
 
 <table id="resultsTable">
-<thead><tr><th>Rego</th><th>Trips</th><th style="text-align:right">Total</th></tr></thead>
+<thead><tr><th>Rego</th><th>Trips</th><th style="text-align:right">Total</th><th></th></tr></thead>
 <tbody></tbody>
 </table>
 
@@ -124,6 +196,42 @@ th,td{padding:8px 6px;font-size:.82rem}
 <textarea class="copy" id="copyArea" readonly aria-label="Copy-paste area"></textarea>
 </div>
 
+<!-- Trip Splitter -->
+<div class="card hidden" id="splitCard">
+<h2>Trip Splitter</h2>
+
+<div class="split-header">
+<span class="split-rego-badge" id="splitRegoBadge">—</span>
+<span class="split-total-badge" id="splitTotalBadge"></span>
+</div>
+
+<div class="multi-trip-toggle">
+<label class="checkbox-wrap" for="multiTripCheck">
+  <input type="checkbox" id="multiTripCheck" onchange="toggleMultiTrips(this.checked)">
+  <span class="checkbox-box"></span>
+</label>
+<label for="multiTripCheck">Multiple Trips</label>
+<span style="font-size:.72rem;color:var(--text-secondary);margin-left:4px">— split this rego's tolls by date range</span>
+</div>
+
+<div id="tripsSection" class="hidden">
+  <div id="tripsList"></div>
+
+  <div id="unallocatedWrap" class="trip-unallocated hidden"></div>
+
+  <button type="button" class="add-trip-btn" onclick="addTrip()">+ Add Trip</button>
+
+  <div class="split-output-section hidden" id="splitOutputSection">
+    <h3>Split Output</h3>
+    <div class="copy-row">
+      <button type="button" id="copySplitBtn" onclick="copySplitOutput()">Copy for Sheets</button>
+      <span class="copy-hint">Tab-separated — paste directly into a sheet</span>
+    </div>
+    <textarea class="copy" id="splitCopyArea" readonly></textarea>
+  </div>
+</div>
+</div>
+
 <div class="footer">Internal Use Only · Renaissance Rentals QLD</div>
 
 </div>
@@ -131,96 +239,35 @@ th,td{padding:8px 6px;font-size:.82rem}
 <script>
 const $ = (id) => document.getElementById(id);
 
+// ── State ─────────────────────────────────────────
+let parsedRows = [];      // [{rego, date: Date, amount}]
+let regoTotals = new Map(); // rego -> {trips, total, isUnknown}
+let selectedRego = null;
+let activeSplitRow = null; // the <tr> element currently highlighted
+
+// ── Drop / File handling ──────────────────────────
 const drop = $('drop');
 const fileInput = $('fileInput');
 const errEl = $('err');
 
 ['dragenter','dragover'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add('drag'); }));
 ['dragleave','drop'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove('drag'); }));
-drop.addEventListener('drop', (ev) => {
-  const file = ev.dataTransfer?.files?.[0];
-  if (file) handleFile(file);
-});
+drop.addEventListener('drop', (ev) => { const f = ev.dataTransfer?.files?.[0]; if (f) handleFile(f); });
 drop.addEventListener('click', () => fileInput.click());
-drop.addEventListener('keydown', (ev) => {
-  if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileInput.click(); }
-});
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) handleFile(fileInput.files[0]);
-});
+drop.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fileInput.click(); } });
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
 
-function showError(msg) {
-  errEl.textContent = msg;
-  errEl.classList.add('show');
-}
-function clearError() {
-  errEl.classList.remove('show');
-  errEl.textContent = '';
-}
+function showError(msg) { errEl.textContent = msg; errEl.classList.add('show'); }
+function clearError() { errEl.classList.remove('show'); errEl.textContent = ''; }
 
-async function handleFile(file) {
-  clearError();
-  $('fileName').textContent = file.name;
-  try {
-    const text = await file.text();
-    const rows = parseCSV(text);
-    if (rows.length < 2) throw new Error('CSV appears empty.');
-    const header = rows[0].map(h => h.trim());
-    const lpnIdx = header.findIndex(h => /LPN/i.test(h));
-    const tagIdx = header.findIndex(h => /Tag/i.test(h));
-    const amtIdx = header.findIndex(h => /Amount/i.test(h));
-    if (lpnIdx === -1 || amtIdx === -1) {
-      throw new Error('Missing expected "LPN" or "Amount" column. Is this a Linkt export?');
-    }
-    const totals = new Map(); // key -> {trips, total, isUnknown}
-    let tripCount = 0;
-    let grand = 0;
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i];
-      if (!r || r.every(c => !c || !c.trim())) continue; // skip blank lines
-      const amt = parseFloat(r[amtIdx]);
-      if (isNaN(amt)) continue;
-      const lpn = (r[lpnIdx] || '').trim();
-      const tag = tagIdx >= 0 ? (r[tagIdx] || '').trim() : '';
-      let key, isUnknown = false;
-      if (lpn) {
-        key = lpn.toUpperCase();
-      } else if (tag) {
-        key = 'Unknown (Tag: ' + tag + ')';
-        isUnknown = true;
-      } else {
-        key = 'Unknown';
-        isUnknown = true;
-      }
-      const entry = totals.get(key) || { trips: 0, total: 0, isUnknown };
-      entry.trips += 1;
-      entry.total += Math.abs(amt);
-      totals.set(key, entry);
-      tripCount += 1;
-      grand += Math.abs(amt);
-    }
-    render(totals, tripCount, grand);
-  } catch (e) {
-    showError('Could not parse file: ' + e.message);
-  }
-}
-
-// RFC 4180 CSV parser, handles quoted fields with embedded commas, quotes (""), and newlines.
+// ── CSV parser (RFC 4180) ─────────────────────────
 function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let field = '';
-  let inQuotes = false;
-  let i = 0;
-  // strip BOM
+  const rows = []; let row = []; let field = ''; let inQuotes = false; let i = 0;
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   while (i < text.length) {
     const c = text[i];
     if (inQuotes) {
-      if (c === '"') {
-        if (text[i+1] === '"') { field += '"'; i += 2; continue; }
-        inQuotes = false; i++; continue;
-      }
+      if (c === '"') { if (text[i+1] === '"') { field += '"'; i += 2; continue; } inQuotes = false; i++; continue; }
       field += c; i++; continue;
     }
     if (c === '"') { inQuotes = true; i++; continue; }
@@ -229,17 +276,95 @@ function parseCSV(text) {
     if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
     field += c; i++;
   }
-  // trailing field / row
-  if (field.length || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
   return rows;
 }
 
+// Parse Linkt date strings: "DD/MM/YYYY HH:MM:SS" or "YYYY-MM-DD HH:MM:SS"
+function parseDate(str) {
+  if (!str) return null;
+  str = str.trim();
+  // DD/MM/YYYY HH:MM:SS  (Linkt standard export)
+  const dmy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[T\s](\d{2}:\d{2}(?::\d{2})?))?/);
+  if (dmy) {
+    const time = dmy[4] || '00:00:00';
+    return new Date(`${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}T${time}`);
+  }
+  // YYYY-MM-DD HH:MM:SS
+  const ymd = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}:\d{2}(?::\d{2})?))?/);
+  if (ymd) {
+    const time = ymd[4] || '00:00:00';
+    return new Date(`${ymd[1]}-${ymd[2]}-${ymd[3]}T${time}`);
+  }
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+// ── Main file handler ─────────────────────────────
+async function handleFile(file) {
+  clearError();
+  $('fileName').textContent = file.name;
+  // Reset splitter
+  $('splitCard').classList.add('hidden');
+  $('results').classList.add('hidden');
+  parsedRows = [];
+  selectedRego = null;
+  activeSplitRow = null;
+
+  try {
+    const text = await file.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw new Error('CSV appears empty.');
+    const header = rows[0].map(h => h.trim());
+
+    const lpnIdx = header.findIndex(h => /LPN/i.test(h));
+    const tagIdx = header.findIndex(h => /^Tag/i.test(h));
+    const amtIdx = header.findIndex(h => /Amount/i.test(h));
+    const dateIdx = header.findIndex(h => /date|time/i.test(h));
+
+    if (lpnIdx === -1 || amtIdx === -1) {
+      throw new Error('Missing expected "LPN" or "Amount" column. Is this a Linkt export?');
+    }
+
+    const totals = new Map();
+    let tripCount = 0, grand = 0;
+
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || r.every(c => !c || !c.trim())) continue;
+      const amt = parseFloat(r[amtIdx]);
+      if (isNaN(amt)) continue;
+
+      const lpn = (r[lpnIdx] || '').trim();
+      const tag = tagIdx >= 0 ? (r[tagIdx] || '').trim() : '';
+      const rawDate = dateIdx >= 0 ? (r[dateIdx] || '') : '';
+      const parsedDate = parseDate(rawDate);
+
+      let key, isUnknown = false;
+      if (lpn) { key = lpn.toUpperCase(); }
+      else if (tag) { key = 'Unknown (Tag: ' + tag + ')'; isUnknown = true; }
+      else { key = 'Unknown'; isUnknown = true; }
+
+      const entry = totals.get(key) || { trips: 0, total: 0, isUnknown };
+      entry.trips += 1;
+      entry.total += Math.abs(amt);
+      totals.set(key, entry);
+
+      parsedRows.push({ rego: key, date: parsedDate, amount: Math.abs(amt) });
+      tripCount += 1;
+      grand += Math.abs(amt);
+    }
+
+    regoTotals = totals;
+    render(totals, tripCount, grand);
+  } catch (e) {
+    showError('Could not parse file: ' + e.message);
+  }
+}
+
+// ── Render results table ──────────────────────────
 function render(totals, tripCount, grand) {
   const entries = [...totals.entries()].sort((a, b) => {
-    // Unknowns at bottom
     if (a[1].isUnknown !== b[1].isUnknown) return a[1].isUnknown ? 1 : -1;
     return a[0].localeCompare(b[0]);
   });
@@ -251,29 +376,195 @@ function render(totals, tripCount, grand) {
 
   const tbody = document.querySelector('#resultsTable tbody');
   tbody.innerHTML = '';
+
   for (const [key, v] of entries) {
     const tr = document.createElement('tr');
     if (v.isUnknown) tr.className = 'unknown';
-    tr.innerHTML = `<td class="rego">${escapeHtml(key)}</td><td>${v.trips}</td><td class="amt">${fmtMoney(v.total)}</td>`;
+    tr.innerHTML = `
+      <td class="rego">${escapeHtml(key)}</td>
+      <td>${v.trips}</td>
+      <td class="amt">${fmtMoney(v.total)}</td>
+      <td class="split-cell">
+        <button type="button" class="split-btn" onclick="selectRego('${escapeAttr(key)}', this.closest('tr'), this)">Split</button>
+      </td>`;
     tbody.appendChild(tr);
   }
-  // totals row
+
   const totalTr = document.createElement('tr');
   totalTr.className = 'totals';
-  totalTr.innerHTML = `<td>TOTAL</td><td>${tripCount}</td><td class="amt">${fmtMoney(grand)}</td>`;
+  totalTr.innerHTML = `<td>TOTAL</td><td>${tripCount}</td><td class="amt">${fmtMoney(grand)}</td><td></td>`;
   tbody.appendChild(totalTr);
 
-  // Copy-paste TSV (Rego<TAB>Amount) — easiest form for Sheets
   const tsvLines = entries.map(([key, v]) => `${key}\t${v.total.toFixed(2)}`);
   $('copyArea').value = tsvLines.join('\n');
 }
 
+// ── Rego selection ────────────────────────────────
+function selectRego(rego, tr, btn) {
+  // Deselect previous
+  if (activeSplitRow) {
+    activeSplitRow.classList.remove('rego-selected');
+    activeSplitRow.querySelector('.split-btn')?.classList.remove('active');
+  }
+
+  if (selectedRego === rego && $('splitCard').classList.contains('hidden') === false) {
+    // Clicking same rego again: close the splitter
+    selectedRego = null;
+    activeSplitRow = null;
+    $('splitCard').classList.add('hidden');
+    return;
+  }
+
+  selectedRego = rego;
+  activeSplitRow = tr;
+  tr.classList.add('rego-selected');
+  btn.classList.add('active');
+
+  // Populate splitter header
+  const v = regoTotals.get(rego);
+  $('splitRegoBadge').textContent = rego;
+  $('splitTotalBadge').textContent = `${v.trips} toll${v.trips !== 1 ? 's' : ''} · ${fmtMoney(v.total)} total`;
+
+  // Reset checkbox + trips section
+  $('multiTripCheck').checked = false;
+  $('tripsSection').classList.add('hidden');
+  $('tripsList').innerHTML = '';
+  $('unallocatedWrap').classList.add('hidden');
+  $('splitOutputSection').classList.add('hidden');
+
+  $('splitCard').classList.remove('hidden');
+  $('splitCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Multiple trips toggle ─────────────────────────
+function toggleMultiTrips(checked) {
+  if (checked) {
+    $('tripsSection').classList.remove('hidden');
+    if ($('tripsList').children.length === 0) addTrip();
+  } else {
+    $('tripsSection').classList.add('hidden');
+  }
+}
+
+// ── Trip management ───────────────────────────────
+let tripCounter = 0;
+
+function addTrip() {
+  tripCounter++;
+  const id = 'trip_' + tripCounter;
+  const div = document.createElement('div');
+  div.className = 'trip-row';
+  div.dataset.tripId = id;
+
+  div.innerHTML = `
+    <input type="text" class="trip-name-input" placeholder="Trip name (e.g. Guest booking #12345)" oninput="recalcOutput()">
+    <div class="trip-date-wrap">
+      <span>From</span>
+      <input type="datetime-local" class="trip-date-input trip-start" onchange="recalcTrip(this.closest('.trip-row'))" title="Start date & time (inclusive)">
+      <span>to</span>
+      <input type="datetime-local" class="trip-date-input trip-end" onchange="recalcTrip(this.closest('.trip-row'))" title="End date & time (inclusive)">
+    </div>
+    <div class="trip-amount" id="${id}_amt">—</div>
+    <button type="button" class="trip-remove" onclick="removeTrip(this.closest('.trip-row'))" title="Remove trip">✕</button>`;
+
+  $('tripsList').appendChild(div);
+  div.querySelector('.trip-name-input').focus();
+}
+
+function removeTrip(row) {
+  row.remove();
+  recalcOutput();
+  if ($('tripsList').children.length === 0) {
+    $('splitOutputSection').classList.add('hidden');
+    $('unallocatedWrap').classList.add('hidden');
+  }
+}
+
+function recalcTrip(row) {
+  const startVal = row.querySelector('.trip-start').value;
+  const endVal   = row.querySelector('.trip-end').value;
+  const id = row.dataset.tripId;
+  const amtEl = document.getElementById(id + '_amt');
+
+  if (!startVal || !endVal) { amtEl.textContent = '—'; recalcOutput(); return; }
+
+  const start = new Date(startVal);  // datetime-local includes time already
+  const end   = new Date(endVal);
+  if (end < start) { amtEl.textContent = '—'; recalcOutput(); return; }
+
+  const total = parsedRows
+    .filter(r => r.rego === selectedRego && r.date && r.date >= start && r.date <= end)
+    .reduce((s, r) => s + r.amount, 0);
+
+  amtEl.textContent = fmtMoney(total);
+  recalcOutput();
+}
+
+function recalcOutput() {
+  const trips = [...$('tripsList').querySelectorAll('.trip-row')];
+  if (!trips.length) return;
+
+  const regoTotal = regoTotals.get(selectedRego)?.total || 0;
+  let allocated = 0;
+  const lines = [];
+  let allValid = true;
+
+  for (const row of trips) {
+    const name   = row.querySelector('.trip-name-input').value.trim() || '(unnamed)';
+    const startV = row.querySelector('.trip-start').value;
+    const endV   = row.querySelector('.trip-end').value;
+    const amtEl  = document.getElementById(row.dataset.tripId + '_amt');
+    const amtTxt = amtEl.textContent;
+
+    if (amtTxt === '—') { allValid = false; continue; }
+    const amount = parseFloat(amtTxt.replace(/[^0-9.]/g, ''));
+    allocated += amount;
+    lines.push(`${name}\t${amount.toFixed(2)}`);
+  }
+
+  // Unallocated
+  const unalloc = regoTotal - allocated;
+  const unallocEl = $('unallocatedWrap');
+  if (Math.abs(unalloc) > 0.005) {
+    unallocEl.classList.remove('hidden');
+    const warn = unalloc > 0.005;
+    unallocEl.className = 'trip-unallocated' + (warn ? ' warn' : '');
+    unallocEl.textContent = warn
+      ? `⚠ ${fmtMoney(unalloc)} unallocated (trips don't cover all tolls for this rego)`
+      : `Note: trips overlap — ${fmtMoney(Math.abs(unalloc))} counted across multiple trips`;
+  } else {
+    unallocEl.classList.add('hidden');
+  }
+
+  if (lines.length > 0) {
+    $('splitOutputSection').classList.remove('hidden');
+    $('splitCopyArea').value = `${selectedRego}\n` + lines.join('\n');
+  } else {
+    $('splitOutputSection').classList.add('hidden');
+  }
+}
+
+async function copySplitOutput() {
+  const ta = $('splitCopyArea');
+  ta.select();
+  try {
+    await navigator.clipboard.writeText(ta.value);
+    const btn = $('copySplitBtn');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  } catch { document.execCommand('copy'); }
+}
+
+// ── Helpers ───────────────────────────────────────
 function fmtMoney(n) {
   return '$' + (Number(n) || 0).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) {
+  return String(s).replace(/'/g, "\\'");
 }
 
 $('copyBtn').addEventListener('click', async () => {
@@ -285,9 +576,7 @@ $('copyBtn').addEventListener('click', async () => {
     const orig = btn.textContent;
     btn.textContent = 'Copied ✓';
     setTimeout(() => { btn.textContent = orig; }, 1500);
-  } catch {
-    document.execCommand('copy');
-  }
+  } catch { document.execCommand('copy'); }
 });
 </script>
 </body>
