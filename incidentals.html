@@ -99,7 +99,9 @@ textarea.copy:focus{outline:none;border-color:var(--gold-dim)}
 .checkbox-wrap input[type=checkbox]:checked + .checkbox-box::after{display:block}
 
 #tripsList{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
-.trip-row{background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:16px 18px;display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center}
+.trip-row{background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.trip-row-top{display:flex;align-items:center;gap:10px}
+.trip-row-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .trip-row:hover{border-color:#333}
 .trip-name-input{
 font-family:var(--sans);font-size:.85rem;font-weight:300;
@@ -143,7 +145,6 @@ border-radius:2px;transition:all .15s;
 @media (max-width:600px){
 .summary{grid-template-columns:1fr}
 th,td{padding:8px 6px;font-size:.82rem}
-.trip-row{grid-template-columns:1fr;gap:8px}
 .trip-date-wrap{flex-wrap:wrap}
 }
 </style>
@@ -457,15 +458,19 @@ function addTrip() {
   div.dataset.tripId = id;
 
   div.innerHTML = `
-    <input type="text" class="trip-name-input" placeholder="Trip name (e.g. Guest booking #12345)" oninput="recalcOutput()">
-    <div class="trip-date-wrap">
-      <span>From</span>
-      <input type="datetime-local" class="trip-date-input trip-start" onchange="recalcTrip(this.closest('.trip-row'))" title="Start date & time (inclusive)">
-      <span>to</span>
-      <input type="datetime-local" class="trip-date-input trip-end" onchange="recalcTrip(this.closest('.trip-row'))" title="End date & time (inclusive)">
+    <div class="trip-row-top">
+      <input type="text" class="trip-name-input" placeholder="Customer name or booking reference" oninput="recalcOutput()">
+      <button type="button" class="trip-remove" onclick="removeTrip(this.closest('.trip-row'))" title="Remove trip">✕</button>
     </div>
-    <div class="trip-amount" id="${id}_amt">—</div>
-    <button type="button" class="trip-remove" onclick="removeTrip(this.closest('.trip-row'))" title="Remove trip">✕</button>`;
+    <div class="trip-row-bottom">
+      <div class="trip-date-wrap">
+        <span>From</span>
+        <input type="datetime-local" class="trip-date-input trip-start" onchange="recalcTrip(this.closest('.trip-row'))" title="Start date & time (inclusive)">
+        <span>to</span>
+        <input type="datetime-local" class="trip-date-input trip-end" onchange="recalcTrip(this.closest('.trip-row'))" title="End date & time (inclusive)">
+      </div>
+      <div class="trip-amount" id="${id}_amt">—</div>
+    </div>`;
 
   $('tripsList').appendChild(div);
   div.querySelector('.trip-name-input').focus();
