@@ -32,6 +32,8 @@ const STAFF_ONLY_PATHS = new Set([
   '/incidentals',
   '/kms-calculator.html',
   '/kms-calculator',
+  '/welcome-email.html',
+  '/welcome-email',
 ]);
 
 function unauthorized() {

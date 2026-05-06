@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Welcome Email — Renaissance Rentals Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111;--border:#222;--text-secondary:#999;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+.page-wrapper{max-width:560px;margin:0 auto;padding:48px 24px 60px}
+.header{text-align:center;margin-bottom:40px}
+.logo{display:block;width:80px;height:auto;margin:0 auto 18px}
+.header h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.header .tagline{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.back-link{display:inline-block;margin-bottom:20px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+.back-link:hover{color:var(--gold)}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:22px}
+.card h2{font-family:var(--serif);font-size:1.25rem;letter-spacing:.06em;margin-bottom:18px;color:var(--white);font-weight:400}
+.form-row{display:flex;gap:14px;margin-bottom:16px}
+.field{flex:1;display:flex;flex-direction:column}
+.field label{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-weight:500}
+.field input{
+background:#0a0a0a;border:1px solid var(--border);border-radius:2px;
+color:var(--white);font-family:var(--sans);font-size:.95rem;
+padding:12px 14px;width:100%;
+transition:border-color .2s;
+}
+.field input:focus{outline:none;border-color:var(--gold-dim)}
+.field input::placeholder{color:#555}
+button.gmail-btn{
+display:flex;align-items:center;justify-content:center;gap:10px;
+width:100%;font-family:var(--sans);font-size:.75rem;letter-spacing:.2em;
+text-transform:uppercase;background:var(--gold);color:var(--black);
+border:none;border-radius:2px;padding:16px 24px;cursor:pointer;
+font-weight:500;transition:background .2s;margin-top:6px;
+}
+button.gmail-btn:hover{background:var(--gold-dim);color:var(--white)}
+button.gmail-btn:disabled{opacity:.4;cursor:not-allowed}
+button.gmail-btn svg{width:18px;height:18px;flex-shrink:0}
+.preview-card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:22px;display:none}
+.preview-card.show{display:block}
+.preview-card h2{font-family:var(--serif);font-size:1.25rem;letter-spacing:.06em;margin-bottom:6px;color:var(--white);font-weight:400}
+.preview-card .subject{font-size:.78rem;color:var(--text-secondary);margin-bottom:18px;letter-spacing:.05em}
+.email-body{background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:20px 22px;font-size:.9rem;line-height:1.85;white-space:pre-wrap;color:var(--white)}
+.email-body .hi{font-weight:500;color:var(--gold)}
+.footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
+@media(max-width:480px){.form-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<a class="back-link" href="staff.html">&larr; Back to Staff Tools</a>
+
+<div class="header">
+<img src="assets/rr-logo.png" alt="Renaissance Rentals" class="logo">
+<h1>Welcome Email</h1>
+<div class="tagline">New Customer Onboarding</div>
+</div>
+
+<div class="card">
+<h2>Customer Details</h2>
+<div class="form-row">
+<div class="field">
+<label for="custName">Customer Name</label>
+<input type="text" id="custName" placeholder="e.g. James Miller" oninput="update()">
+</div>
+</div>
+<div class="form-row">
+<div class="field">
+<label for="carTitle">Rental Car</label>
+<input type="text" id="carTitle" placeholder="e.g. Toyota HiLux" oninput="update()">
+</div>
+<div class="field">
+<label for="carRego">Rego</label>
+<input type="text" id="carRego" placeholder="e.g. 289ZBA" oninput="update()" style="text-transform:uppercase">
+</div>
+</div>
+
+<button class="gmail-btn" id="gmailBtn" onclick="openGmail()" disabled>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+<path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/>
+</svg>
+Open in Gmail
+</button>
+</div>
+
+<div class="preview-card" id="previewCard">
+<h2>Preview</h2>
+<div class="subject" id="previewSubject"></div>
+<div class="email-body" id="previewBody"></div>
+</div>
+
+<div class="footer">Internal Use Only &middot; Renaissance Rentals QLD</div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function buildEmail() {
+  const name = $('custName').value.trim();
+  const car  = $('carTitle').value.trim();
+  const rego = $('carRego').value.trim().toUpperCase();
+  const firstName = name.split(' ')[0] || 'there';
+
+  const subject = `Welcome to Renaissance Rentals${car && rego ? ' — ' + car + ' (' + rego + ')' : ''}`;
+
+  const body =
+`Hi ${firstName},
+
+Welcome to Renaissance Rentals! We’re delighted to have you on board${car && rego ? ' with your ' + car + ' (' + rego + ')' : ''}.
+
+A WhatsApp group chat will be set up for you shortly, including yourself and our team. This will be your dedicated channel for anything related to your rental — please don’t hesitate to reach out at any time.
+
+—— In the Event of a Road Incident ——
+
+1. Ensure all parties are safe and move to a safe location where possible.
+2. Call 000 if there are any injuries or the vehicle is obstructing traffic.
+3. Exchange details with any other parties involved — name, contact number, vehicle registration and insurance details.
+4. Take photos of the scene, all vehicles involved and any visible damage.
+5. Contact us immediately via WhatsApp or phone.
+
+Please also note that any tolls incurred during your rental will be invoiced on a fortnightly basis.
+
+If you have any questions at all, we’re here to help.
+
+Kind regards,
+Renaissance Rentals QLD`;
+
+  return { subject, body };
+}
+
+function update() {
+  const name = $('custName').value.trim();
+  const car  = $('carTitle').value.trim();
+  const rego = $('carRego').value.trim();
+  const ready = name && car && rego;
+
+  $('gmailBtn').disabled = !ready;
+
+  if (ready) {
+    const { subject, body } = buildEmail();
+    $('previewSubject').textContent = 'Subject: ' + subject;
+    $('previewBody').textContent = body;
+    $('previewCard').classList.add('show');
+  } else {
+    $('previewCard').classList.remove('show');
+  }
+}
+
+function openGmail() {
+  const { subject, body } = buildEmail();
+  const url = 'https://mail.google.com/mail/?view=cm&su=' +
+    encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.open(url, '_blank', 'noopener');
+}
+</script>
+</body>
+</html>
