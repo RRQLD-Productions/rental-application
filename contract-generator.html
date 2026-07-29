@@ -355,19 +355,26 @@ animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px;
 <div class="form-group">
 <label for="damageExcess">Damage Liability Up To ($)</label>
 <div class="input-prefix">
-<input type="number" id="damageExcess" min="0" step="100" value="5000">
+<input type="number" id="damageExcess" min="0" step="100" value="1500">
 </div>
 </div>
 
 <div class="form-group">
-<label for="youngDriverExcess">Additional Excess (drivers 21–24)</label>
+<label for="youngDriverExcess">Additional Excess — Drivers 21 to 24 years ($)</label>
 <div class="input-prefix">
-<input type="number" id="youngDriverExcess" min="0" step="100" value="1000">
+<input type="number" id="youngDriverExcess" min="0" step="100" value="500">
 </div>
 </div>
 
 <div class="form-group">
-<label for="securityDeposit">Security Deposit</label>
+<label for="p2DriverExcess">Additional Excess — P2 Licence Holders ($)</label>
+<div class="input-prefix">
+<input type="number" id="p2DriverExcess" min="0" step="100" value="1000">
+</div>
+</div>
+
+<div class="form-group">
+<label for="securityDeposit">Security Deposit ($)</label>
 <div class="input-prefix">
 <input type="number" id="securityDeposit" min="0" step="50" value="100">
 </div>
@@ -603,6 +610,7 @@ function collectFormData() {
     excess: {
       damageExcess: parseFloat($('damageExcess').value) || 0,
       youngDriverExcess: parseFloat($('youngDriverExcess').value) || 0,
+      p2DriverExcess: parseFloat($('p2DriverExcess').value) || 0,
       securityDeposit: parseFloat($('securityDeposit').value) || 0,
     },
     charges: {
