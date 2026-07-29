@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>End of Rental — Renaissance Rentals Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111;--border:#222;--text-secondary:#999;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+.page-wrapper{max-width:580px;margin:0 auto;padding:48px 24px 60px}
+.header{text-align:center;margin-bottom:40px}
+.logo{display:block;width:80px;height:auto;margin:0 auto 18px}
+.header h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.header .tagline{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.back-link{display:inline-block;margin-bottom:20px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+.back-link:hover{color:var(--gold)}
+
+/* Cards */
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);opacity:.4}
+.card h2{font-family:var(--serif);font-size:1.2rem;letter-spacing:.06em;margin-bottom:18px;color:var(--white);font-weight:400}
+
+/* Form elements */
+.form-row{display:flex;gap:14px;margin-bottom:16px}
+.field{flex:1;display:flex;flex-direction:column}
+.field.full{flex:100%}
+.field label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-weight:500}
+.field input[type="text"],.field input[type="date"],.field input[type="number"]{
+background:#0a0a0a;border:1px solid var(--border);border-radius:2px;
+color:var(--white);font-family:var(--sans);font-size:.9rem;
+padding:11px 13px;width:100%;
+transition:border-color .2s;
+}
+.field input:focus{outline:none;border-color:var(--gold-dim)}
+.field input::placeholder{color:#555}
+.field input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.4)}
+
+/* Checkbox rows */
+.check-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.check-row input[type="checkbox"]{
+width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;
+}
+.check-row label{font-size:.78rem;color:var(--white);cursor:pointer;letter-spacing:.03em}
+.conditional{margin-top:10px;display:none}
+.conditional.show{display:block}
+
+/* Divider inside card */
+.card-divider{height:1px;background:var(--border);margin:20px 0}
+
+/* Generate button */
+.gen-btn{
+display:flex;align-items:center;justify-content:center;gap:10px;
+width:100%;font-family:var(--sans);font-size:.72rem;letter-spacing:.22em;
+text-transform:uppercase;background:var(--gold);color:var(--black);
+border:none;border-radius:2px;padding:16px 24px;cursor:pointer;
+font-weight:600;transition:background .2s;margin-top:4px;
+}
+.gen-btn:hover{background:var(--gold-dim);color:var(--white)}
+
+/* Output card */
+.output-card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:20px;display:none;position:relative;overflow:hidden}
+.output-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);opacity:.4}
+.output-card.show{display:block}
+.output-card h2{font-family:var(--serif);font-size:1.2rem;letter-spacing:.06em;margin-bottom:6px;color:var(--white);font-weight:400}
+.output-hint{font-size:.65rem;color:var(--text-secondary);letter-spacing:.1em;margin-bottom:16px}
+.copy-block{position:relative}
+.copy-block textarea{
+width:100%;background:#0a0a0a;border:1px solid var(--border);border-radius:2px;
+padding:16px 18px;font-size:.88rem;line-height:1.9;color:var(--white);
+font-family:var(--sans);font-weight:300;resize:none;outline:none;
+}
+.copy-block textarea:focus{border-color:var(--gold-dim)}
+.copy-btn{
+font-family:var(--sans);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+background:transparent;color:var(--gold);border:1px solid var(--gold-dim);
+border-radius:2px;padding:8px 16px;cursor:pointer;transition:background .2s,color .2s;
+margin-top:10px;
+}
+.copy-btn:hover{background:var(--gold-dim);color:var(--white)}
+
+.footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
+@media(max-width:480px){.form-row{flex-direction:column}.page-wrapper{padding:32px 18px 48px}}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<a class="back-link" href="staff.html">&larr; Back to Staff Tools</a>
+
+<div class="header">
+<img src="assets/rr-logo.png" alt="Renaissance Rentals" class="logo">
+<h1>End of Rental</h1>
+<div class="tagline">Message Generator</div>
+</div>
+
+<!-- Form -->
+<div class="card">
+<h2>Renter Details</h2>
+
+<div class="form-row">
+<div class="field">
+<label for="renterName">Renter Name</label>
+<input type="text" id="renterName" placeholder="e.g. James Miller" oninput="update()">
+</div>
+<div class="field">
+<label for="carRego">Car Rego</label>
+<input type="text" id="carRego" placeholder="e.g. 289ZBA" oninput="update()" style="text-transform:uppercase">
+</div>
+</div>
+
+<div class="form-row">
+<div class="field">
+<label for="rentalDate">Rental End Date</label>
+<input type="date" id="rentalDate" oninput="update()">
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Financial Summary</h2>
+
+<!-- Bond -->
+<div class="check-row">
+<input type="checkbox" id="bondReturn" onchange="toggleField('bondReturn','bondAmountWrap');update()" checked>
+<label for="bondReturn">Bond is being returned</label>
+</div>
+<div class="conditional show" id="bondAmountWrap">
+<div class="form-row">
+<div class="field">
+<label for="bondAmount">Bond Amount ($)</label>
+<input type="number" id="bondAmount" value="100" min="0" step="0.01" oninput="update()">
+</div>
+</div>
+</div>
+
+<div class="card-divider"></div>
+
+<!-- Outstanding rental -->
+<div class="check-row">
+<input type="checkbox" id="hasRentalOwed" onchange="toggleField('hasRentalOwed','rentalOwedWrap');update()">
+<label for="hasRentalOwed">Outstanding rental payment</label>
+</div>
+<div class="conditional" id="rentalOwedWrap">
+<div class="form-row">
+<div class="field">
+<label for="rentalOwed">Amount Owed ($)</label>
+<input type="number" id="rentalOwed" placeholder="0.00" min="0" step="0.01" oninput="update()">
+</div>
+</div>
+</div>
+
+<!-- Outstanding incidentals -->
+<div class="check-row">
+<input type="checkbox" id="hasIncidentalOwed" onchange="toggleField('hasIncidentalOwed','incidentalOwedWrap');update()">
+<label for="hasIncidentalOwed">Outstanding incidental payment (tolls etc.)</label>
+</div>
+<div class="conditional" id="incidentalOwedWrap">
+<div class="form-row">
+<div class="field">
+<label for="incidentalOwed">Amount Owed ($)</label>
+<input type="number" id="incidentalOwed" placeholder="0.00" min="0" step="0.01" oninput="update()">
+</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Additional Notes</h2>
+
+<div class="check-row">
+<input type="checkbox" id="hasDamages" onchange="update()">
+<label for="hasDamages">Will be in contact regarding damages</label>
+</div>
+</div>
+
+<div class="card">
+<h2>Google Review Link <span style="font-size:.7rem;color:var(--text-secondary);font-family:var(--sans);font-weight:300;letter-spacing:.05em">(optional)</span></h2>
+<div class="form-row">
+<div class="field">
+<label for="reviewUrl">Google Review URL</label>
+<input type="text" id="reviewUrl" placeholder="https://g.page/r/..." oninput="update()">
+</div>
+</div>
+</div>
+
+<button class="gen-btn" onclick="generate()">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px;flex-shrink:0">
+<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+</svg>
+Generate Message
+</button>
+
+<!-- Output -->
+<div class="output-card" id="outputCard">
+<h2>WhatsApp Message</h2>
+<div class="output-hint">Copy and paste into WhatsApp</div>
+<div class="copy-block">
+<textarea id="outputMsg" rows="24" readonly></textarea>
+<button class="copy-btn" onclick="copyMsg(this)">Copy Message</button>
+</div>
+</div>
+
+<div class="footer">Internal Use Only &middot; Renaissance Rentals QLD</div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function toggleField(checkId, wrapId) {
+  $(''+wrapId).classList.toggle('show', $(''+checkId).checked);
+}
+
+function fmtMoney(n) {
+  return '$' + Number(n || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function update() {
+  // Auto-uppercase rego
+  $('carRego').value = $('carRego').value.toUpperCase();
+}
+
+function generate() {
+  const name      = $('renterName').value.trim();
+  const rego      = $('carRego').value.trim().toUpperCase();
+  const dateVal   = $('rentalDate').value;
+  const firstName = name.split(' ')[0] || 'there';
+
+  const bondReturn      = $('bondReturn').checked;
+  const bondAmount      = bondReturn ? Number($('bondAmount').value || 100) : 0;
+  const hasRentalOwed   = $('hasRentalOwed').checked;
+  const rentalOwed      = hasRentalOwed ? Number($('rentalOwed').value || 0) : 0;
+  const hasIncidental   = $('hasIncidentalOwed').checked;
+  const incidentalOwed  = hasIncidental ? Number($('incidentalOwed').value || 0) : 0;
+  const hasDamages      = $('hasDamages').checked;
+  const reviewUrl       = $('reviewUrl').value.trim();
+
+  const dateStr = dateVal ? fmtDate(dateVal) : 'today';
+
+  let lines = [];
+
+  lines.push(`Hi ${firstName},`);
+  lines.push('');
+  lines.push(`Thank you for renting with Renaissance Rentals. We hope you enjoyed your time with the ${rego || 'vehicle'}.`);
+  lines.push('');
+  lines.push(`📋 *End of Rental Summary — ${dateStr}*`);
+  lines.push('');
+
+  // Bond
+  if (bondReturn) {
+    lines.push(`💰 *Bond Refund*`);
+    lines.push(`${fmtMoney(bondAmount)} will be returned to you within 14 days.`);
+  } else {
+    lines.push(`💰 *Bond*`);
+    lines.push(`No bond refund applicable.`);
+  }
+
+  // Outstanding rental
+  if (hasRentalOwed && rentalOwed > 0) {
+    lines.push('');
+    lines.push(`⚠️ *Outstanding Rental Payment*`);
+    lines.push(`${fmtMoney(rentalOwed)} remains outstanding. Please arrange payment at your earliest convenience.`);
+  }
+
+  // Outstanding incidentals
+  if (hasIncidental && incidentalOwed > 0) {
+    lines.push('');
+    lines.push(`⚠️ *Outstanding Incidentals*`);
+    lines.push(`${fmtMoney(incidentalOwed)} is owed for tolls or incidentals. Please arrange payment at your earliest convenience.`);
+  }
+
+  // Damages
+  if (hasDamages) {
+    lines.push('');
+    lines.push(`🔧 *Damages*`);
+    lines.push(`We will be in contact with you shortly regarding damages incurred during your rental period.`);
+  }
+
+  lines.push('');
+  lines.push('─────────────────────');
+  lines.push('');
+
+  // Google Review
+  lines.push(`⭐ *Leave Us a Google Review*`);
+  if (reviewUrl) {
+    lines.push(`We'd love to hear about your experience — it really helps our small business:`);
+    lines.push(reviewUrl);
+  } else {
+    lines.push(`Search *Renaissance Rentals QLD* on Google and leave us a review — it means the world to us!`);
+  }
+
+  lines.push('');
+  lines.push(`🚗 *Need another vehicle?* We'd love to have you back — reach out anytime!`);
+  lines.push('');
+  lines.push(`👥 *Refer a friend* and earn cash rewards. Ask us for details!`);
+
+  lines.push('');
+  lines.push('─────────────────────');
+  lines.push('');
+  lines.push(`📧 admin@renaissancerentalsqld.com`);
+  lines.push(`📞 0483 786 597`);
+
+  const msg = lines.join('\n');
+  $('outputMsg').value = msg;
+  $('outputMsg').style.height = 'auto';
+  $('outputMsg').style.height = $('outputMsg').scrollHeight + 'px';
+
+  const card = $('outputCard');
+  card.classList.add('show');
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyMsg(btn) {
+  const ta = $('outputMsg');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = orig, 1600);
+  }).catch(() => {
+    ta.select();
+    document.execCommand('copy');
+  });
+}
+
+// Set today's date as default
+$('rentalDate').valueAsDate = new Date();
+</script>
+</body>
+</html>

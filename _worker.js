@@ -34,6 +34,8 @@ const STAFF_ONLY_PATHS = new Set([
   '/kms-calculator',
   '/welcome-email.html',
   '/welcome-email',
+  '/end-of-rental.html',
+  '/end-of-rental',
 ]);
 
 function unauthorized() {
