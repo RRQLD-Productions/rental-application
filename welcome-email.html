@@ -100,7 +100,7 @@ button.gmail-btn svg{width:18px;height:18px;flex-shrink:0}
 </div>
 </div>
 
-<button class="gmail-btn" id="gmailBtn" onclick="openGmail()" disabled>
+<button class="gmail-btn" id="gmailBtn" onclick="openGmail()">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/>
 </svg>
@@ -232,8 +232,6 @@ function update() {
   const rego = $('carRego').value.trim();
   const ready = name && car && rego;
 
-  $('gmailBtn').disabled = !ready;
-
   if (ready) {
     const { subject, body } = buildEmail();
     $('previewSubject').textContent = 'Subject: ' + subject;
@@ -273,6 +271,13 @@ function copyTextarea(elId, btn) {
 }
 
 function openGmail() {
+  const name = $('custName').value.trim();
+  const car  = $('carTitle').value.trim();
+  const rego = $('carRego').value.trim();
+  if (!name || !car || !rego) {
+    alert('Please fill in Customer Name, Rental Car, and Rego first.');
+    return;
+  }
   const { subject, body } = buildEmail();
   const url = 'https://mail.google.com/mail/?view=cm&su=' +
     encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
