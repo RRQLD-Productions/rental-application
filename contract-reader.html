@@ -124,6 +124,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <table id="resultsTable">
       <thead>
         <tr>
+          <th>Rego</th>
           <th>File</th>
           <th>Renter Name</th>
           <th>Start Date</th>
@@ -153,7 +154,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <table id="driverTable">
       <thead>
         <tr>
-          <th>Rego</th>
           <th>Full Name</th>
           <th>Phone</th>
           <th>Email</th>
@@ -517,25 +517,25 @@ function renderResults() {
   // ── Contract summary table ──
   const tbody = $('resultsTbody');
   tbody.innerHTML = '';
-  const tsvRows = ['File\tRenter Name\tStart Date\tEnd Date\tWeekly Rate (GST incl.)\tBond Held\tOdometer Out\tOdometer In'];
+  const tsvRows = ['Rego\tFile\tRenter Name\tStart Date\tEnd Date\tWeekly Rate (GST incl.)\tBond Held\tOdometer Out\tOdometer In'];
 
   results.forEach(r => {
     const tr = document.createElement('tr');
     if (r.error) {
-      tr.innerHTML = `<td>${escHtml(r.file)}</td><td colspan="7" class="no-data">Parse error: ${escHtml(r.error)}</td>`;
+      tr.innerHTML = `<td>${escHtml(r.file)}</td><td colspan="8" class="no-data">Parse error: ${escHtml(r.error)}</td>`;
     } else {
-      tr.innerHTML = [r.file, r.renterName, r.startDate, r.endDate, r.weeklyRate, r.bond, r.odometerOut, r.odometerIn]
+      tr.innerHTML = [r.rego, r.file, r.renterName, r.startDate, r.endDate, r.weeklyRate, r.bond, r.odometerOut, r.odometerIn]
         .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
     }
     tbody.appendChild(tr);
-    tsvRows.push([r.file, r.renterName||'', r.startDate||'', r.endDate||'', r.weeklyRate||'', r.bond||'', r.odometerOut||'', r.odometerIn||''].join('\t'));
+    tsvRows.push([r.rego||'', r.file, r.renterName||'', r.startDate||'', r.endDate||'', r.weeklyRate||'', r.bond||'', r.odometerOut||'', r.odometerIn||''].join('\t'));
   });
   $('tsvArea').value = tsvRows.join('\n');
 
   // ── Driver details table (blocklist excluded, duplicates removed) ──
   const driverTbody = $('driverTbody');
   driverTbody.innerHTML = '';
-  const driverTsvRows = ['Rego\tFull Name\tPhone\tEmail\tLicence #\tLicence Expiry\tAddress\tDate of Birth'];
+  const driverTsvRows = ['Full Name\tPhone\tEmail\tLicence #\tLicence Expiry\tAddress\tDate of Birth'];
   let excluded = 0;
   const seenNames = new Set();
 
@@ -546,10 +546,10 @@ function renderResults() {
     if (seenNames.has(key)) return;
     seenNames.add(key);
     const tr = document.createElement('tr');
-    tr.innerHTML = [r.rego, r.renterName, r.phone, r.email, r.licenceNumber, r.licenceExpiry, r.address, r.dob]
+    tr.innerHTML = [r.renterName, r.phone, r.email, r.licenceNumber, r.licenceExpiry, r.address, r.dob]
       .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
     driverTbody.appendChild(tr);
-    driverTsvRows.push([r.rego||'', r.renterName||'', r.phone||'', r.email||'', r.licenceNumber||'', r.licenceExpiry||'', r.address||'', r.dob||''].join('\t'));
+    driverTsvRows.push([r.renterName||'', r.phone||'', r.email||'', r.licenceNumber||'', r.licenceExpiry||'', r.address||'', r.dob||''].join('\t'));
   });
 
   $('driverTsvArea').value = driverTsvRows.join('\n');
