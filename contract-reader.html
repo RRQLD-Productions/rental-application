@@ -78,6 +78,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .tsv-area{width:100%;background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:14px 16px;font-family:monospace;font-size:.78rem;color:var(--white);resize:none;outline:none;line-height:1.7}
 .tsv-area:focus{border-color:var(--gold-dim)}
 
+.driver-note{font-size:.7rem;color:var(--text-secondary);margin-bottom:14px;letter-spacing:.04em}
+.driver-note span{color:var(--gold)}
 .footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
 </style>
 </head>
@@ -117,7 +119,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
 <div class="results-section" id="resultsSection">
 <div class="card">
-  <h2>Results</h2>
+  <h2>Contract Summary</h2>
   <div class="table-wrap">
     <table id="resultsTable">
       <thead>
@@ -135,13 +137,40 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <tbody id="resultsTbody"></tbody>
     </table>
   </div>
-
   <div class="tsv-block">
     <label for="tsvArea">Copy to Google Sheets (Tab-Separated)</label>
     <textarea class="tsv-area" id="tsvArea" rows="6" readonly spellcheck="false"></textarea>
   </div>
   <div class="action-row">
-    <button class="btn btn-outline" onclick="copyTsv(this)">Copy TSV</button>
+    <button class="btn btn-outline" onclick="copyTsv('tsvArea', this)">Copy TSV</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Driver Details</h2>
+  <div class="driver-note" id="driverNote"></div>
+  <div class="table-wrap">
+    <table id="driverTable">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Licence #</th>
+          <th>Licence Expiry</th>
+          <th>Address</th>
+          <th>Date of Birth</th>
+        </tr>
+      </thead>
+      <tbody id="driverTbody"></tbody>
+    </table>
+  </div>
+  <div class="tsv-block">
+    <label for="driverTsvArea">Copy to Google Sheets (Tab-Separated)</label>
+    <textarea class="tsv-area" id="driverTsvArea" rows="6" readonly spellcheck="false"></textarea>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-outline" onclick="copyTsv('driverTsvArea', this)">Copy TSV</button>
   </div>
 </div>
 </div>
@@ -256,27 +285,95 @@ async function extractText(file) {
 function parseContract(text, filename) {
   return {
     file: filename,
-    renterName:  findRenterName(text),
-    startDate:   findStartDate(text),
-    endDate:     findEndDate(text),
-    weeklyRate:  findWeeklyRate(text),
-    bond:        findBond(text),
-    odometerOut: findOdometerOut(text),
-    odometerIn:  findOdometerIn(text),
+    renterName:     findRenterName(text),
+    startDate:      findStartDate(text),
+    endDate:        findEndDate(text),
+    weeklyRate:     findWeeklyRate(text),
+    bond:           findBond(text),
+    odometerOut:    findOdometerOut(text),
+    odometerIn:     findOdometerIn(text),
+    phone:          findPhone(text),
+    email:          findEmail(text),
+    licenceNumber:  findLicenceNumber(text),
+    licenceExpiry:  findLicenceExpiry(text),
+    address:        findAddress(text),
+    dob:            findDOB(text),
   };
+}
+
+// ── Blocklist — names excluded from Driver Details output ──────────────────
+const BLOCKLIST = new Set([
+  'trevor james truss',
+  'oliver james lazaro',
+  'joshua king',
+  'christopher alexander nielson',
+  'shakeena coleena paauw',
+  'jhon steven moreno rincon',
+  'alpha bah',
+  'mitchell anthony peter hines',
+  'anthony john hines',
+  'kenneth andrew aitken',
+  'shaikh muhamad salman',
+  'rahul',
+  'viliame kanatabua vuloko latenacolo',
+  'farabi kadir',
+  'michael jon perryn',
+  'udit udit',
+  'ethan john isaak',
+]);
+
+function isBlocklisted(name) {
+  return !!name && BLOCKLIST.has(name.toLowerCase().replace(/\s+/g, ' ').trim());
 }
 
 function findRenterName(text) {
   const lines = text.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    // Look for a line containing "Name:" (case-insensitive, allowing spaces)
-    // Skip lines that also reference "Authorised" or "Driver" to avoid the second name block
-    const m = lines[i].match(/Name\s*:\s*(.+)/i);
-    if (m && !/authoris|driver/i.test(lines[i])) {
+  for (const line of lines) {
+    const m = line.match(/Name\s*:\s*(.+)/i);
+    if (m && !/authoris|driver/i.test(line)) {
       const name = m[1].replace(/\s+/g, ' ').trim();
       if (name) return name;
     }
   }
+  return null;
+}
+
+function findPhone(text) {
+  const m = text.match(/Mobile\s*(?:Number)?\s*:\s*([\d\s]+?)(?:\s{2,}|Email|$)/im);
+  if (m) return m[1].replace(/\s+/g, ' ').trim();
+  return null;
+}
+
+function findEmail(text) {
+  const m = text.match(/Email\s*:\s*([^\s@]+@[^\s]+)/i);
+  if (m) return m[1].trim();
+  return null;
+}
+
+function findLicenceNumber(text) {
+  const m = text.match(/Licence\s*(?:Number)?\s*:\s*([\w\s]+?)(?:\s{2,}|Expiry|$)/im);
+  if (m) return m[1].replace(/\s+/g, ' ').trim();
+  return null;
+}
+
+function findLicenceExpiry(text) {
+  const m = text.match(/Expiry\s*Date\s*:\s*(.+?)(?:\s{2,}|$)/im);
+  if (m) {
+    const val = m[1].replace(/\s+/g, ' ').trim();
+    if (val) return val;
+  }
+  return null;
+}
+
+function findAddress(text) {
+  const m = text.match(/Address\s*:\s*(.+?)(?:\s{2,}|Driver|Licence|$)/im);
+  if (m) return m[1].replace(/\s+/g, ' ').trim();
+  return null;
+}
+
+function findDOB(text) {
+  const m = text.match(/Date\s*of\s*Birth\s*:\s*(.+?)(?:\s{2,}|$)/im);
+  if (m) return m[1].replace(/\s+/g, ' ').trim();
   return null;
 }
 
@@ -401,9 +498,9 @@ function findOdometerIn(text) {
 
 // ── Render ─────────────────────────────────────────────
 function renderResults() {
+  // ── Contract summary table ──
   const tbody = $('resultsTbody');
   tbody.innerHTML = '';
-
   const tsvRows = ['File\tRenter Name\tStart Date\tEnd Date\tWeekly Rate (GST incl.)\tBond Held\tOdometer Out\tOdometer In'];
 
   results.forEach(r => {
@@ -415,25 +512,37 @@ function renderResults() {
         .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
     }
     tbody.appendChild(tr);
+    tsvRows.push([r.file, r.renterName||'', r.startDate||'', r.endDate||'', r.weeklyRate||'', r.bond||'', r.odometerOut||'', r.odometerIn||''].join('\t'));
+  });
+  $('tsvArea').value = tsvRows.join('\n');
 
-    tsvRows.push([
-      r.file,
-      r.renterName || '',
-      r.startDate || '',
-      r.endDate || '',
-      r.weeklyRate || '',
-      r.bond || '',
-      r.odometerOut || '',
-      r.odometerIn || '',
-    ].join('\t'));
+  // ── Driver details table (blocklist excluded) ──
+  const driverTbody = $('driverTbody');
+  driverTbody.innerHTML = '';
+  const driverTsvRows = ['Full Name\tPhone\tEmail\tLicence #\tLicence Expiry\tAddress\tDate of Birth'];
+  let excluded = 0;
+
+  results.forEach(r => {
+    if (r.error) return;
+    if (isBlocklisted(r.renterName)) { excluded++; return; }
+    const tr = document.createElement('tr');
+    tr.innerHTML = [r.renterName, r.phone, r.email, r.licenceNumber, r.licenceExpiry, r.address, r.dob]
+      .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
+    driverTbody.appendChild(tr);
+    driverTsvRows.push([r.renterName||'', r.phone||'', r.email||'', r.licenceNumber||'', r.licenceExpiry||'', r.address||'', r.dob||''].join('\t'));
   });
 
-  $('tsvArea').value = tsvRows.join('\n');
+  $('driverTsvArea').value = driverTsvRows.join('\n');
+  const note = $('driverNote');
+  note.innerHTML = excluded > 0
+    ? `<span>${excluded}</span> contract${excluded > 1 ? 's' : ''} excluded (internal fleet / known names)`
+    : '';
+
   $('resultsSection').classList.add('show');
 }
 
-function copyTsv(btn) {
-  const ta = $('tsvArea');
+function copyTsv(areaId, btn) {
+  const ta = $(areaId);
   ta.select();
   navigator.clipboard.writeText(ta.value).then(() => {
     const orig = btn.textContent;
