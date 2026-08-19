@@ -36,6 +36,8 @@ const STAFF_ONLY_PATHS = new Set([
   '/welcome-email',
   '/end-of-rental.html',
   '/end-of-rental',
+  '/contract-reader.html',
+  '/contract-reader',
 ]);
 
 function unauthorized() {

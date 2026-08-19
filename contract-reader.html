@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Contract Reader — Renaissance Rentals Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--black:#0a0a0a;--white:#f5f5f0;--gold:#c9a84c;--gold-dim:#a07e2e;
+--card-bg:#111;--border:#222;--text-secondary:#999;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Montserrat',sans-serif;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+.page-wrapper{max-width:860px;margin:0 auto;padding:48px 24px 60px}
+.header{text-align:center;margin-bottom:40px}
+.logo{display:block;width:80px;height:auto;margin:0 auto 18px}
+.header h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.header .tagline{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.back-link{display:inline-block;margin-bottom:20px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+.back-link:hover{color:var(--gold)}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:28px 26px;margin-bottom:22px}
+.card h2{font-family:var(--serif);font-size:1.25rem;letter-spacing:.06em;margin-bottom:18px;color:var(--white);font-weight:400}
+
+/* Drop zone */
+.drop-zone{
+border:2px dashed var(--border);border-radius:2px;padding:48px 24px;
+text-align:center;cursor:pointer;transition:border-color .2s,background .2s;
+position:relative;
+}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(201,168,76,.04)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-zone-icon{margin-bottom:14px;color:var(--text-secondary)}
+.drop-zone-icon svg{width:36px;height:36px}
+.drop-zone-text{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px}
+.drop-zone-hint{font-size:.65rem;color:#555;letter-spacing:.05em}
+
+/* File list */
+.file-list{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.file-chip{display:flex;align-items:center;justify-content:space-between;background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:10px 14px;font-size:.75rem;gap:12px}
+.file-chip-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chip-status{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px}
+.chip-pending{color:#555;background:rgba(255,255,255,.04)}
+.chip-ok{color:#4caf7e;background:rgba(76,175,126,.1)}
+.chip-err{color:#e57373;background:rgba(229,115,115,.1)}
+
+/* Actions */
+.action-row{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;border-radius:2px;padding:13px 22px;cursor:pointer;transition:background .2s,color .2s,border-color .2s;font-weight:500;border:none}
+.btn-gold{background:var(--gold);color:var(--black)}
+.btn-gold:hover{background:var(--gold-dim);color:var(--white)}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
+.btn-outline:hover{background:var(--gold-dim);color:var(--white)}
+.btn-outline:disabled{opacity:.4;cursor:not-allowed}
+
+/* Results */
+.results-section{display:none}
+.results-section.show{display:block}
+
+/* Table */
+.table-wrap{overflow-x:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:600px}
+th{background:#0a0a0a;color:var(--gold);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:500;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid #1a1a1a;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.no-data{color:var(--text-secondary);font-style:italic}
+
+/* Copy TSV area */
+.tsv-block{margin-top:18px}
+.tsv-block label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px;font-weight:500}
+.tsv-area{width:100%;background:#0a0a0a;border:1px solid var(--border);border-radius:2px;padding:14px 16px;font-family:monospace;font-size:.78rem;color:var(--white);resize:none;outline:none;line-height:1.7}
+.tsv-area:focus{border-color:var(--gold-dim)}
+
+.footer{text-align:center;margin-top:40px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<a class="back-link" href="staff.html">&larr; Back to Staff Tools</a>
+
+<div class="header">
+<img src="assets/rr-logo.png" alt="Renaissance Rentals" class="logo">
+<h1>Contract Reader</h1>
+<div class="tagline">PDF Batch Extraction</div>
+</div>
+
+<div class="card">
+<h2>Upload Contracts</h2>
+
+<div class="drop-zone" id="dropZone">
+  <input type="file" id="fileInput" accept="application/pdf" multiple>
+  <div class="drop-zone-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+    </svg>
+  </div>
+  <div class="drop-zone-text">Drop PDF contracts here</div>
+  <div class="drop-zone-hint">or click to browse — multiple files accepted</div>
+</div>
+
+<div class="file-list" id="fileList"></div>
+
+<div class="action-row">
+  <button class="btn btn-gold" id="parseBtn" disabled onclick="parseAll()">Extract Data</button>
+  <button class="btn btn-outline" id="clearBtn" onclick="clearAll()">Clear</button>
+</div>
+</div>
+
+<div class="results-section" id="resultsSection">
+<div class="card">
+  <h2>Results</h2>
+  <div class="table-wrap">
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Weekly Rate (GST incl.)</th>
+          <th>Bond Held</th>
+          <th>Odometer Out</th>
+          <th>Odometer In</th>
+        </tr>
+      </thead>
+      <tbody id="resultsTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="tsv-block">
+    <label for="tsvArea">Copy to Google Sheets (Tab-Separated)</label>
+    <textarea class="tsv-area" id="tsvArea" rows="6" readonly spellcheck="false"></textarea>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-outline" onclick="copyTsv(this)">Copy TSV</button>
+  </div>
+</div>
+</div>
+
+<div class="footer">Internal Use Only &middot; Renaissance Rentals QLD</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const $ = id => document.getElementById(id);
+let files = [];
+let results = [];
+
+// ── Drop zone ──────────────────────────────────────────
+const dz = $('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('over');
+  addFiles([...e.dataTransfer.files].filter(f => f.type === 'application/pdf'));
+});
+$('fileInput').addEventListener('change', e => {
+  addFiles([...e.target.files]);
+  e.target.value = '';
+});
+
+function addFiles(newFiles) {
+  newFiles.forEach(f => {
+    if (!files.find(x => x.name === f.name && x.size === f.size)) files.push(f);
+  });
+  renderFileList();
+  $('parseBtn').disabled = files.length === 0;
+}
+
+function renderFileList() {
+  const list = $('fileList');
+  list.innerHTML = '';
+  files.forEach((f, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.id = 'chip-' + i;
+    chip.innerHTML = `<span class="file-chip-name">${escHtml(f.name)}</span><span class="file-chip-status chip-pending" id="status-${i}">Pending</span>`;
+    list.appendChild(chip);
+  });
+}
+
+function setChipStatus(i, cls, text) {
+  const el = $('status-' + i);
+  if (!el) return;
+  el.className = 'file-chip-status ' + cls;
+  el.textContent = text;
+}
+
+function clearAll() {
+  files = [];
+  results = [];
+  renderFileList();
+  $('parseBtn').disabled = true;
+  $('resultsSection').classList.remove('show');
+  $('resultsTbody').innerHTML = '';
+  $('tsvArea').value = '';
+}
+
+// ── PDF parsing ────────────────────────────────────────
+async function parseAll() {
+  $('parseBtn').disabled = true;
+  results = [];
+  $('resultsTbody').innerHTML = '';
+  $('resultsSection').classList.remove('show');
+
+  for (let i = 0; i < files.length; i++) {
+    setChipStatus(i, 'chip-pending', 'Reading…');
+    try {
+      const text = await extractText(files[i]);
+      const data = parseContract(text, files[i].name);
+      results.push(data);
+      setChipStatus(i, 'chip-ok', 'OK');
+    } catch (err) {
+      results.push({ file: files[i].name, error: err.message });
+      setChipStatus(i, 'chip-err', 'Error');
+    }
+  }
+
+  renderResults();
+  $('parseBtn').disabled = false;
+}
+
+async function extractText(file) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let full = '';
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    // Stitch items preserving rough layout — join with spaces, newlines where y changes significantly
+    let lastY = null;
+    for (const item of content.items) {
+      if (lastY !== null && Math.abs(item.transform[5] - lastY) > 4) full += '\n';
+      full += item.str;
+      lastY = item.transform[5];
+    }
+    full += '\n';
+  }
+  return full;
+}
+
+// ── Field extraction ───────────────────────────────────
+function parseContract(text, filename) {
+  return {
+    file: filename,
+    startDate:   findStartDate(text),
+    endDate:     findEndDate(text),
+    weeklyRate:  findWeeklyRate(text),
+    bond:        findBond(text),
+    odometerOut: findOdometerOut(text),
+    odometerIn:  findOdometerIn(text),
+  };
+}
+
+// Returns first match from a list of patterns against text
+function firstMatch(text, patterns) {
+  for (const re of patterns) {
+    const m = text.match(re);
+    if (m) return m[1] ? m[1].trim() : m[0].trim();
+  }
+  return null;
+}
+
+// Date patterns: "12 January 2025" or "12/01/2025" or "01-12-2025"
+const DATE_RE = /(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/gi;
+const DATE_SHORT_RE = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/g;
+
+function extractDateNear(text, labelPattern) {
+  const re = new RegExp(labelPattern + '[^\\n]{0,60}', 'i');
+  const chunk = (text.match(re) || [''])[0];
+  // Try long form first
+  let m = chunk.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
+  if (m) return m[1];
+  // Try short form
+  m = chunk.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/);
+  if (m) return m[1];
+  // Try label on its own line then next line
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (new RegExp(labelPattern, 'i').test(lines[i])) {
+      for (let j = i; j <= i + 3 && j < lines.length; j++) {
+        let lm = lines[j].match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
+        if (lm) return lm[1];
+        lm = lines[j].match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/);
+        if (lm) return lm[1];
+      }
+    }
+  }
+  return null;
+}
+
+function findStartDate(text) {
+  return extractDateNear(text, 'Start\\s*Date') ||
+         extractDateNear(text, 'Commencement') ||
+         null;
+}
+
+function findEndDate(text) {
+  return extractDateNear(text, 'End\\s*Date') ||
+         extractDateNear(text, 'Return\\s*Date') ||
+         null;
+}
+
+function findDollarNear(text, labelPattern, searchLines = 4) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (new RegExp(labelPattern, 'i').test(lines[i])) {
+      for (let j = i; j <= i + searchLines && j < lines.length; j++) {
+        const m = lines[j].match(/\$\s*([\d,]+(?:\.\d{2})?)/);
+        if (m) return parseFloat(m[1].replace(/,/g, ''));
+      }
+    }
+  }
+  // Fallback: in-line search
+  const re = new RegExp(labelPattern + '[^\\n]{0,80}\\$(\\s*[\\d,]+(?:\\.\\d{2})?)', 'i');
+  const m = text.match(re);
+  if (m) return parseFloat(m[1].replace(/\s|,/g, ''));
+  return null;
+}
+
+function findWeeklyRate(text) {
+  // Find daily rate ex-GST, then weekly rate GST incl = daily * 7 * 1.1
+  const daily = findDollarNear(text, 'Daily\\s*Rate', 4) ||
+                findDollarNear(text, 'Per\\s*Day', 4);
+  if (daily === null) return null;
+  const weekly = daily * 7 * 1.1;
+  return '$' + weekly.toFixed(2);
+}
+
+function findBond(text) {
+  const amt = findDollarNear(text, 'Security\\s*Deposit', 4) ||
+              findDollarNear(text, 'Bond', 4);
+  if (amt === null) return null;
+  return '$' + amt.toFixed(2);
+}
+
+function findKmNear(text, labelPattern) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (new RegExp(labelPattern, 'i').test(lines[i])) {
+      for (let j = i; j <= i + 4 && j < lines.length; j++) {
+        const m = lines[j].match(/([\d,]+)\s*km/i);
+        if (m) return m[1].replace(/,/g, '') + ' km';
+        // bare number that looks like an odometer
+        const n = lines[j].match(/\b([\d,]{4,7})\b/);
+        if (n) return n[1].replace(/,/g, '') + ' km';
+      }
+    }
+  }
+  return null;
+}
+
+function findOdometerOut(text) {
+  return findKmNear(text, 'Odometer\\s*(?:Reading)?\\s*(?:Out|Start|\\(Out\\))') ||
+         findKmNear(text, 'Odometer');
+}
+
+function findOdometerIn(text) {
+  return findKmNear(text, 'Odometer\\s*(?:Reading)?\\s*(?:In|End|Return|\\(In\\))') ||
+         null;
+}
+
+// ── Render ─────────────────────────────────────────────
+function renderResults() {
+  const tbody = $('resultsTbody');
+  tbody.innerHTML = '';
+
+  const tsvRows = ['File\tStart Date\tEnd Date\tWeekly Rate (GST incl.)\tBond Held\tOdometer Out\tOdometer In'];
+
+  results.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.error) {
+      tr.innerHTML = `<td>${escHtml(r.file)}</td><td colspan="6" class="no-data">Parse error: ${escHtml(r.error)}</td>`;
+    } else {
+      tr.innerHTML = [r.file, r.startDate, r.endDate, r.weeklyRate, r.bond, r.odometerOut, r.odometerIn]
+        .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
+    }
+    tbody.appendChild(tr);
+
+    tsvRows.push([
+      r.file,
+      r.startDate || '',
+      r.endDate || '',
+      r.weeklyRate || '',
+      r.bond || '',
+      r.odometerOut || '',
+      r.odometerIn || '',
+    ].join('\t'));
+  });
+
+  $('tsvArea').value = tsvRows.join('\n');
+  $('resultsSection').classList.add('show');
+}
+
+function copyTsv(btn) {
+  const ta = $('tsvArea');
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  }).catch(() => document.execCommand('copy'));
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
