@@ -330,34 +330,24 @@ function findDollarNear(text, labelPattern, searchLines = 4) {
   return null;
 }
 
-// Returns the SMALLEST non-zero dollar amount near a label — used for daily
-// rate so we pick the per-day rate rather than the multi-day total.
-function findSmallestDollarNear(text, labelPattern, searchLines = 6) {
+function findWeeklyRate(text) {
+  // The contract table row reads: "Days rented  N  Daily rate  $X.XX  $total"
+  // We want the FIRST dollar on the Daily rate line — that is the per-day rate.
+  // Searching further risks picking up per-km rates on the next row ($0.40/km).
   const lines = text.split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    if (new RegExp(labelPattern, 'i').test(lines[i])) {
-      const amounts = [];
-      for (let j = i; j <= i + searchLines && j < lines.length; j++) {
-        const matches = [...lines[j].matchAll(/\$\s*([\d,]+(?:\.\d{2})?)/g)];
-        matches.forEach(m => {
-          const v = parseFloat(m[1].replace(/,/g, ''));
-          if (v > 0) amounts.push(v);
-        });
+  for (const pattern of [/Daily\s*Rate/i, /Per\s*Day/i]) {
+    for (const line of lines) {
+      if (pattern.test(line)) {
+        const matches = [...line.matchAll(/\$\s*([\d,]+(?:\.\d{2})?)/g)];
+        const amounts = matches.map(m => parseFloat(m[1].replace(/,/g, ''))).filter(v => v > 0);
+        if (amounts.length) {
+          const daily = amounts[0]; // first = per-day rate, last = multi-day total
+          return '$' + ((daily * 7) * 1.1).toFixed(2);
+        }
       }
-      if (amounts.length) return Math.min(...amounts);
     }
   }
   return null;
-}
-
-function findWeeklyRate(text) {
-  // Per-day rate ex-GST — take the smallest non-zero dollar near the label.
-  const daily = findSmallestDollarNear(text, 'Daily\\s*Rate') ??
-                findSmallestDollarNear(text, 'Per\\s*Day');
-  if (!daily) return null;
-  // Weekly rate GST incl. = (daily ex-GST × 7) × 1.1
-  const weekly = (daily * 7) * 1.1;
-  return '$' + weekly.toFixed(2);
 }
 
 function findBond(text) {
