@@ -123,6 +123,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <thead>
         <tr>
           <th>File</th>
+          <th>Renter Name</th>
           <th>Start Date</th>
           <th>End Date</th>
           <th>Weekly Rate (GST incl.)</th>
@@ -255,6 +256,7 @@ async function extractText(file) {
 function parseContract(text, filename) {
   return {
     file: filename,
+    renterName:  findRenterName(text),
     startDate:   findStartDate(text),
     endDate:     findEndDate(text),
     weeklyRate:  findWeeklyRate(text),
@@ -262,6 +264,20 @@ function parseContract(text, filename) {
     odometerOut: findOdometerOut(text),
     odometerIn:  findOdometerIn(text),
   };
+}
+
+function findRenterName(text) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    // Look for a line containing "Name:" (case-insensitive, allowing spaces)
+    // Skip lines that also reference "Authorised" or "Driver" to avoid the second name block
+    const m = lines[i].match(/Name\s*:\s*(.+)/i);
+    if (m && !/authoris|driver/i.test(lines[i])) {
+      const name = m[1].replace(/\s+/g, ' ').trim();
+      if (name) return name;
+    }
+  }
+  return null;
 }
 
 // Returns first match from a list of patterns against text
@@ -388,20 +404,21 @@ function renderResults() {
   const tbody = $('resultsTbody');
   tbody.innerHTML = '';
 
-  const tsvRows = ['File\tStart Date\tEnd Date\tWeekly Rate (GST incl.)\tBond Held\tOdometer Out\tOdometer In'];
+  const tsvRows = ['File\tRenter Name\tStart Date\tEnd Date\tWeekly Rate (GST incl.)\tBond Held\tOdometer Out\tOdometer In'];
 
   results.forEach(r => {
     const tr = document.createElement('tr');
     if (r.error) {
-      tr.innerHTML = `<td>${escHtml(r.file)}</td><td colspan="6" class="no-data">Parse error: ${escHtml(r.error)}</td>`;
+      tr.innerHTML = `<td>${escHtml(r.file)}</td><td colspan="7" class="no-data">Parse error: ${escHtml(r.error)}</td>`;
     } else {
-      tr.innerHTML = [r.file, r.startDate, r.endDate, r.weeklyRate, r.bond, r.odometerOut, r.odometerIn]
+      tr.innerHTML = [r.file, r.renterName, r.startDate, r.endDate, r.weeklyRate, r.bond, r.odometerOut, r.odometerIn]
         .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
     }
     tbody.appendChild(tr);
 
     tsvRows.push([
       r.file,
+      r.renterName || '',
       r.startDate || '',
       r.endDate || '',
       r.weeklyRate || '',
