@@ -524,15 +524,19 @@ function renderResults() {
   });
   $('tsvArea').value = tsvRows.join('\n');
 
-  // ── Driver details table (blocklist excluded) ──
+  // ── Driver details table (blocklist excluded, duplicates removed) ──
   const driverTbody = $('driverTbody');
   driverTbody.innerHTML = '';
   const driverTsvRows = ['Full Name\tPhone\tEmail\tLicence #\tLicence Expiry\tAddress\tDate of Birth'];
   let excluded = 0;
+  const seenNames = new Set();
 
   results.forEach(r => {
     if (r.error) return;
     if (isBlocklisted(r.renterName)) { excluded++; return; }
+    const key = (r.renterName || '').toLowerCase().trim();
+    if (seenNames.has(key)) return;
+    seenNames.add(key);
     const tr = document.createElement('tr');
     tr.innerHTML = [r.renterName, r.phone, r.email, r.licenceNumber, r.licenceExpiry, r.address, r.dob]
       .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
