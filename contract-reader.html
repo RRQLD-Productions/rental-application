@@ -153,6 +153,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <table id="driverTable">
       <thead>
         <tr>
+          <th>Rego</th>
           <th>Full Name</th>
           <th>Phone</th>
           <th>Email</th>
@@ -292,6 +293,7 @@ function parseContract(text, filename) {
     bond:           findBond(text),
     odometerOut:    findOdometerOut(text),
     odometerIn:     findOdometerIn(text),
+    rego:           findRego(text),
     phone:          findPhone(text),
     email:          findEmail(text),
     licenceNumber:  findLicenceNumber(text),
@@ -347,6 +349,12 @@ function findPhone(text) {
 function findEmail(text) {
   const m = text.match(/Email\s*:\s*([^\s@]+@[^\s]+)/i);
   if (m) return m[1].trim();
+  return null;
+}
+
+function findRego(text) {
+  const m = text.match(/Registration\s*(?:Number)?\s*:\s*([A-Z0-9]+)/i);
+  if (m) return m[1].trim().toUpperCase();
   return null;
 }
 
@@ -527,7 +535,7 @@ function renderResults() {
   // ── Driver details table (blocklist excluded, duplicates removed) ──
   const driverTbody = $('driverTbody');
   driverTbody.innerHTML = '';
-  const driverTsvRows = ['Full Name\tPhone\tEmail\tLicence #\tLicence Expiry\tAddress\tDate of Birth'];
+  const driverTsvRows = ['Rego\tFull Name\tPhone\tEmail\tLicence #\tLicence Expiry\tAddress\tDate of Birth'];
   let excluded = 0;
   const seenNames = new Set();
 
@@ -538,10 +546,10 @@ function renderResults() {
     if (seenNames.has(key)) return;
     seenNames.add(key);
     const tr = document.createElement('tr');
-    tr.innerHTML = [r.renterName, r.phone, r.email, r.licenceNumber, r.licenceExpiry, r.address, r.dob]
+    tr.innerHTML = [r.rego, r.renterName, r.phone, r.email, r.licenceNumber, r.licenceExpiry, r.address, r.dob]
       .map(v => `<td>${v ? escHtml(v) : '<span class="no-data">—</span>'}</td>`).join('');
     driverTbody.appendChild(tr);
-    driverTsvRows.push([r.renterName||'', r.phone||'', r.email||'', r.licenceNumber||'', r.licenceExpiry||'', r.address||'', r.dob||''].join('\t'));
+    driverTsvRows.push([r.rego||'', r.renterName||'', r.phone||'', r.email||'', r.licenceNumber||'', r.licenceExpiry||'', r.address||'', r.dob||''].join('\t'));
   });
 
   $('driverTsvArea').value = driverTsvRows.join('\n');
