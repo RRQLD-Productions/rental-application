@@ -313,6 +313,7 @@ function findEndDate(text) {
          null;
 }
 
+// Returns first dollar amount found near a label
 function findDollarNear(text, labelPattern, searchLines = 4) {
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i++) {
@@ -323,19 +324,37 @@ function findDollarNear(text, labelPattern, searchLines = 4) {
       }
     }
   }
-  // Fallback: in-line search
   const re = new RegExp(labelPattern + '[^\\n]{0,80}\\$(\\s*[\\d,]+(?:\\.\\d{2})?)', 'i');
   const m = text.match(re);
   if (m) return parseFloat(m[1].replace(/\s|,/g, ''));
   return null;
 }
 
+// Returns the SMALLEST dollar amount near a label — used for daily rate so
+// we pick the per-day rate rather than the multi-day total when both appear.
+function findSmallestDollarNear(text, labelPattern, searchLines = 6) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (new RegExp(labelPattern, 'i').test(lines[i])) {
+      const amounts = [];
+      for (let j = i; j <= i + searchLines && j < lines.length; j++) {
+        const matches = [...lines[j].matchAll(/\$\s*([\d,]+(?:\.\d{2})?)/g)];
+        matches.forEach(m => amounts.push(parseFloat(m[1].replace(/,/g, ''))));
+      }
+      if (amounts.length) return Math.min(...amounts);
+    }
+  }
+  return null;
+}
+
 function findWeeklyRate(text) {
-  // Find daily rate ex-GST, then weekly rate GST incl = daily * 7 * 1.1
-  const daily = findDollarNear(text, 'Daily\\s*Rate', 4) ||
-                findDollarNear(text, 'Per\\s*Day', 4);
+  // Per-day rate ex-GST — take the smallest dollar near the label to avoid
+  // picking up the multi-day total instead of the per-day rate.
+  const daily = findSmallestDollarNear(text, 'Daily\\s*Rate') ||
+                findSmallestDollarNear(text, 'Per\\s*Day');
   if (daily === null) return null;
-  const weekly = daily * 7 * 1.1;
+  // Weekly rate GST incl. = daily ex-GST × 1.1 × 7
+  const weekly = daily * 1.1 * 7;
   return '$' + weekly.toFixed(2);
 }
 
