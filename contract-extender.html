@@ -333,38 +333,74 @@ function parseContract(text) {
   c.oldStartTime = extractTimeNearLabel(text, 'Start\\s*Time');
   c.oldEndTime = extractTimeNearLabel(text, 'End\\s*Time');
 
-  // Excess amounts
-  c.damageExcess = dollarNearLabel(text, 'Payable\\s*for\\s*Damage', 3) ||
-                   dollarNearLabel(text, 'Damage\\s*Excess', 3) || 5000;
-  c.youngDriverExcess = dollarNearLabel(text, 'drivers\\s*21\\s*to\\s*24', 3) ||
-                        dollarNearLabel(text, 'Young\\s*Driver', 3) || 1000;
-  c.p2DriverExcess = dollarNearLabel(text, 'P2\\s*Licence', 3) ||
-                     dollarNearLabel(text, 'P2\\s*Driver', 3) || 1000;
-  c.securityDeposit = dollarNearLabel(text, 'Security\\s*Deposit', 4) || 100;
+  // Excess amounts — use ?? not || so a real $0.00 isn't replaced with the default
+  c.damageExcess = dollarNearLabel(text, 'Payable\\s*for\\s*Damage', 3) ??
+                   dollarNearLabel(text, 'Damage\\s*Excess', 3) ?? 0;
+  c.youngDriverExcess = dollarNearLabel(text, 'drivers\\s*21\\s*to\\s*24', 3) ??
+                        dollarNearLabel(text, 'Young\\s*Driver', 3) ?? 0;
+  c.p2DriverExcess = dollarNearLabel(text, 'P2\\s*\\(green\\)', 3) ??
+                     dollarNearLabel(text, 'provisional\\s*or\\s*probationary', 3) ??
+                     dollarNearLabel(text, 'P2\\s*Licence', 3) ??
+                     dollarNearLabel(text, 'P2\\s*Driver', 3) ?? 0;
+  c.securityDeposit = dollarNearLabel(text, 'Security\\s*Deposit', 4) ?? 0;
 
   // Weekly rate — extract daily rate ex-GST from first dollar on Daily rate line
   const dailyExGst = dailyRateFromText(text);
   c.dailyRateExGst = dailyExGst;
   c.weeklyRate = dailyExGst ? +((dailyExGst * 7) * 1.1).toFixed(2) : 0;
 
-  // Authorised driver — populated only if Name field has content
-  const driverName = firstMatchLineAfter(lines, /Authoris(?:ed|ed)?\s*Driver/i, /Name\s*:?\s*(.+)/i);
-  if (driverName && driverName.trim() && driverName.length > 1) {
-    c.driver = {
-      name: driverName,
-      address: firstMatchLineAfter(lines, /Authoris(?:ed|ed)?\s*Driver/i, /Address\s*:?\s*(.+)/i),
-      licence: firstMatchLineAfter(lines, /Authoris(?:ed|ed)?\s*Driver/i, /Licence\s*Number\s*:\s*([\d\s\-A-Z]+?)(?:\s{2,}|Expiry|$)/i),
-      licenceExpiry: '',
-      licenceState: '',
-      dob: '',
-      mobile: '',
-      email: '',
-    };
-  } else {
-    c.driver = null;
-  }
+  // Authorised driver — only look within the driver block (stops at Vehicle)
+  c.driver = parseDriverBlock(lines);
 
   return c;
+}
+
+// Parses the Authorised Driver section, bounded strictly between the
+// 'Authorised Driver' header and the 'Vehicle' header so we never pick up
+// stray text from Credit Card Details or elsewhere.
+function parseDriverBlock(lines) {
+  const startIdx = lines.findIndex(l => /Authoris(?:ed)?\s*Driver/i.test(l));
+  if (startIdx === -1) return null;
+  const endIdx = lines.findIndex((l, i) => i > startIdx && /^\s*Vehicle\s*$/i.test(l));
+  const block = lines.slice(startIdx + 1, endIdx === -1 ? Math.min(startIdx + 12, lines.length) : endIdx);
+
+  const OTHER_LABELS = /Address|Licence|Expiry|Country|Birth|Mobile|Email|Card|Credit|Number|Registration|Vehicle|Damage|Security|Rental|Rate/i;
+
+  let name = '';
+  for (const line of block) {
+    const m = line.match(/^\s*Name\s+(.+)$/i);
+    if (!m) continue;
+    const val = m[1].replace(/\s+/g, ' ').trim();
+    if (val && !OTHER_LABELS.test(val) && !/^\s*$/.test(val)) { name = val; break; }
+  }
+  if (!name) return null;
+
+  const findInBlock = (re) => {
+    for (const line of block) {
+      const m = line.match(re);
+      if (m) return (m[1] || '').replace(/\s+/g, ' ').trim();
+    }
+    return '';
+  };
+
+  let address = '';
+  for (const line of block) {
+    const m = line.match(/^\s*Address\s+(.+)$/i);
+    if (!m) continue;
+    const val = m[1].replace(/\s+/g, ' ').trim();
+    if (val && !OTHER_LABELS.test(val)) { address = val; break; }
+  }
+
+  return {
+    name,
+    address,
+    licence:       findInBlock(/Licence\s*Number\s*:\s*([\d\s\-A-Z]+?)(?:\s{2,}|Expiry|$)/i),
+    licenceExpiry: pdfDateToIso(findInBlock(/Expiry\s*Date\s*:\s*(.+)/i)),
+    licenceState:  findInBlock(/State\s*\/?\s*Country[^:]*:\s*([A-Z]{2,4})/i),
+    dob:           pdfDateToIso(findInBlock(/Date\s*of\s*Birth\s*:\s*(.+)/i)),
+    mobile:        findInBlock(/Mobile\s*(?:Number|number)?\s*:\s*([\d\s]+?)(?:\s{2,}|Email|$)/i),
+    email:         findInBlock(/Email\s*:\s*([^\s@]+@[^\s]+)/i),
+  };
 }
 
 function firstMatchLine(lines, re, guard) {
@@ -372,16 +408,6 @@ function firstMatchLine(lines, re, guard) {
     if (guard && !guard(line)) continue;
     const m = line.match(re);
     if (m) return (m[1] || m[0]).replace(/\s+/g, ' ').trim();
-  }
-  return '';
-}
-
-function firstMatchLineAfter(lines, headerRe, fieldRe) {
-  let past = false;
-  for (const line of lines) {
-    if (!past) { if (headerRe.test(line)) past = true; continue; }
-    const m = line.match(fieldRe);
-    if (m) return (m[1] || '').replace(/\s+/g, ' ').trim();
   }
   return '';
 }
