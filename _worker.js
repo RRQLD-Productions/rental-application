@@ -38,6 +38,8 @@ const STAFF_ONLY_PATHS = new Set([
   '/end-of-rental',
   '/contract-reader.html',
   '/contract-reader',
+  '/contract-extender.html',
+  '/contract-extender',
 ]);
 
 function unauthorized() {
