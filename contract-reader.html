@@ -353,8 +353,8 @@ function findWeeklyRate(text) {
   const daily = findSmallestDollarNear(text, 'Daily\\s*Rate') ||
                 findSmallestDollarNear(text, 'Per\\s*Day');
   if (daily === null) return null;
-  // Weekly rate GST incl. = daily ex-GST × 1.1 × 7
-  const weekly = daily * 1.1 * 7;
+  // Weekly rate GST incl. = (daily ex-GST × 7) × 1.1
+  const weekly = (daily * 7) * 1.1;
   return '$' + weekly.toFixed(2);
 }
 
