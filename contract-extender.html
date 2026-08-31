@@ -162,9 +162,35 @@ position:relative;
 <p class="help">Days are counted inclusively (end day counts as a full rental day).</p>
 </div>
 
-<!-- Step 4: Weekly rate -->
+<!-- Step 4: Vehicle -->
+<div class="card stage-hidden" id="vehicleCard">
+<h2>4. Vehicle</h2>
+<div class="sub">Registration &amp; odometer</div>
+
+<div class="form-row">
+  <div class="field">
+    <label for="editRego">Rego</label>
+    <input type="text" id="editRego" disabled style="text-transform:uppercase">
+    <p class="help" id="regoHint"></p>
+  </div>
+  <div class="field">
+    <label for="editOdometer">Odometer @ Check Out (km)</label>
+    <input type="number" id="editOdometer" min="0" disabled>
+    <p class="help" id="odoHint"></p>
+  </div>
+</div>
+
+<div class="toggle-row">
+  <label class="toggle-label">
+    <input type="checkbox" id="editVehicle">
+    <span>Edit rego / odometer for this extension</span>
+  </label>
+</div>
+</div>
+
+<!-- Step 5: Weekly rate -->
 <div class="card stage-hidden" id="rateCard">
-<h2>4. Weekly Rate</h2>
+<h2>5. Weekly Rate</h2>
 <div class="sub">GST inclusive</div>
 
 <div class="field">
@@ -181,7 +207,91 @@ position:relative;
 </div>
 </div>
 
-<!-- Step 5: Generate -->
+<!-- Step 6: Damage excess & security -->
+<div class="card stage-hidden" id="excessCard">
+<h2>6. Damage Excess &amp; Security</h2>
+<div class="sub">Pre-filled from the old contract</div>
+
+<div class="field">
+  <label for="editDamageExcess">Damage Liability Up To ($)</label>
+  <input type="number" id="editDamageExcess" min="0" step="100" disabled>
+</div>
+<div class="field">
+  <label for="editYoungDriverExcess">Additional Excess — Drivers 21 to 24 years ($)</label>
+  <input type="number" id="editYoungDriverExcess" min="0" step="100" disabled>
+</div>
+<div class="field">
+  <label for="editP2Excess">Additional Excess — P2 Licence Holders ($)</label>
+  <input type="number" id="editP2Excess" min="0" step="100" disabled>
+</div>
+<div class="field">
+  <label for="editSecurityDeposit">Security Deposit ($)</label>
+  <input type="number" id="editSecurityDeposit" min="0" step="50" disabled>
+</div>
+
+<div class="toggle-row">
+  <label class="toggle-label">
+    <input type="checkbox" id="editExcess">
+    <span>Edit damage excess &amp; security amounts</span>
+  </label>
+</div>
+</div>
+
+<!-- Step 7: Authorised driver -->
+<div class="card stage-hidden" id="driverCard">
+<h2>7. Authorised Driver</h2>
+<div class="sub" id="driverSub">Optional second driver</div>
+
+<div class="toggle-row">
+  <label class="toggle-label">
+    <input type="checkbox" id="hasDriver">
+    <span>Include an authorised driver on this contract</span>
+  </label>
+</div>
+
+<div id="driverFields" style="display:none;margin-top:16px">
+  <div class="field">
+    <label for="dName">Full Name</label>
+    <input type="text" id="dName">
+  </div>
+  <div class="field">
+    <label for="dAddress">Residential Address</label>
+    <input type="text" id="dAddress">
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label for="dLicence">Driver's Licence Number</label>
+      <input type="text" id="dLicence">
+    </div>
+    <div class="field">
+      <label for="dLicenceExpiry">Licence Expiry</label>
+      <input type="date" id="dLicenceExpiry">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label for="dLicenceState">Licence State / Country</label>
+      <input type="text" id="dLicenceState" placeholder="e.g. QLD" style="text-transform:uppercase">
+    </div>
+    <div class="field">
+      <label for="dDob">Date of Birth</label>
+      <input type="date" id="dDob">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label for="dMobile">Mobile Number</label>
+      <input type="tel" id="dMobile">
+    </div>
+    <div class="field">
+      <label for="dEmail">Email</label>
+      <input type="email" id="dEmail">
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Step 8: Generate -->
 <div class="card stage-hidden" id="genCard">
 <button class="btn btn-gold" id="generateBtn" style="width:100%">Generate Extended Contract</button>
 <div class="msg error" id="errorMsg"></div>
@@ -225,7 +335,7 @@ async function handleFile(file) {
     parsedContract._file = file;
     setChip('chip-ok', 'Parsed ✓');
     populateFromParsed();
-    ['reviewCard','periodCard','rateCard','genCard'].forEach(id => {
+    ['reviewCard','periodCard','vehicleCard','rateCard','excessCard','driverCard','genCard'].forEach(id => {
       $(id).classList.remove('stage-hidden');
       $(id).classList.add('stage-visible');
     });
@@ -324,6 +434,10 @@ function parseContract(text) {
   const regoM = text.match(/Registration\s*(?:Number)?\s*:\s*([A-Z0-9]+)/i);
   c.rego = regoM ? regoM[1].toUpperCase() : '';
 
+  // Odometer @ Check Out
+  c.odometerOut = kmNearLabel(text, 'Odometer\\s*(?:Reading)?\\s*(?:@\\s*)?(?:Check\\s*Out|Out|Start)') ||
+                  kmNearLabel(text, 'Odometer\\s*Reading') || '';
+
   // Fuel
   c.fuelFull = /☒\s*Yes/i.test(text) || /\bYes\b[^\n]*full/i.test(text);
 
@@ -412,6 +526,22 @@ function firstMatchLine(lines, re, guard) {
   return '';
 }
 
+function kmNearLabel(text, labelPattern) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (new RegExp(labelPattern, 'i').test(lines[i])) {
+      for (let j = i; j <= i + 3 && j < lines.length; j++) {
+        const m = lines[j].match(/([\d,]+)\s*km/i);
+        if (m) return m[1].replace(/[,\s]/g, '');
+        // bare number that looks like an odometer (4-7 digits)
+        const n = lines[j].match(/\b([\d,]{4,7})\b/);
+        if (n && !/\$/.test(lines[j])) return n[1].replace(/[,\s]/g, '');
+      }
+    }
+  }
+  return '';
+}
+
 function dollarNearLabel(text, labelPattern, searchLines = 4) {
   const lines = text.split('\n');
   for (let i = 0; i < lines.length; i++) {
@@ -467,16 +597,69 @@ function populateFromParsed() {
   if (c.oldStartTime) $('newStartTime').value = c.oldStartTime;
   if (c.oldEndTime) $('newEndTime').value = c.oldEndTime;
 
+  // Vehicle — pre-fill rego and odometer, editable via checkbox
+  $('editRego').value = c.rego || '';
+  $('regoHint').textContent = c.rego ? 'From old contract' : 'Not found — enable edit and enter manually';
+  $('editOdometer').value = c.odometerOut || '';
+  $('odoHint').textContent = c.odometerOut
+    ? `From old contract — ${c.odometerOut} km`
+    : 'Not found in old contract — enable edit to enter manually';
+
   // Weekly rate — filled read-only, editable via checkbox
   $('weeklyRate').value = c.weeklyRate ? c.weeklyRate.toFixed(2) : '';
   $('rateHint').textContent = c.weeklyRate
     ? `From old contract — daily rate ex-GST $${c.dailyRateExGst.toFixed(2)} × 7 × 1.1 = $${c.weeklyRate.toFixed(2)}`
     : 'Could not extract from old contract — enable edit and enter manually';
+
+  // Damage excess & security — pre-fill from parsed values, editable via checkbox
+  $('editDamageExcess').value = c.damageExcess;
+  $('editYoungDriverExcess').value = c.youngDriverExcess;
+  $('editP2Excess').value = c.p2DriverExcess;
+  $('editSecurityDeposit').value = c.securityDeposit;
+
+  // Authorised driver — pre-tick and pre-fill if the old contract had one
+  if (c.driver) {
+    $('hasDriver').checked = true;
+    $('driverFields').style.display = 'block';
+    $('driverSub').textContent = 'Pre-filled from the old contract';
+    $('dName').value = c.driver.name || '';
+    $('dAddress').value = c.driver.address || '';
+    $('dLicence').value = c.driver.licence || '';
+    $('dLicenceExpiry').value = c.driver.licenceExpiry || '';
+    $('dLicenceState').value = c.driver.licenceState || '';
+    $('dDob').value = c.driver.dob || '';
+    $('dMobile').value = c.driver.mobile || '';
+    $('dEmail').value = c.driver.email || '';
+  } else {
+    $('hasDriver').checked = false;
+    $('driverFields').style.display = 'none';
+    $('driverSub').textContent = 'Not on the old contract — tick to add one';
+  }
 }
 
+// ── Toggles ────────────────────────────────────────────
 $('editRate').addEventListener('change', e => {
   $('weeklyRate').disabled = !e.target.checked;
   if (e.target.checked) $('weeklyRate').focus();
+});
+
+$('editVehicle').addEventListener('change', e => {
+  const on = e.target.checked;
+  $('editRego').disabled = !on;
+  $('editOdometer').disabled = !on;
+  if (on) $('editRego').focus();
+});
+
+$('editExcess').addEventListener('change', e => {
+  const on = e.target.checked;
+  ['editDamageExcess','editYoungDriverExcess','editP2Excess','editSecurityDeposit'].forEach(id => {
+    $(id).disabled = !on;
+  });
+  if (on) $('editDamageExcess').focus();
+});
+
+$('hasDriver').addEventListener('change', e => {
+  $('driverFields').style.display = e.target.checked ? 'block' : 'none';
 });
 
 // ── Generate ──────────────────────────────────────────
@@ -510,6 +693,32 @@ $('generateBtn').addEventListener('click', async function() {
   const gst = round2(subtotal * 0.10);
   const total = round2(subtotal + gst);
 
+  // Vehicle — read from editable fields (pre-populated from PDF)
+  const finalRego = ($('editRego').value || '').trim().toUpperCase();
+  const finalOdometer = ($('editOdometer').value || '').trim();
+  if (!finalRego) return showMsg('errorMsg', 'Rego is required.');
+
+  // Excess & security — read from editable fields
+  const finalDamageExcess = parseFloat($('editDamageExcess').value) || 0;
+  const finalYoungDriverExcess = parseFloat($('editYoungDriverExcess').value) || 0;
+  const finalP2Excess = parseFloat($('editP2Excess').value) || 0;
+  const finalSecurityDeposit = parseFloat($('editSecurityDeposit').value) || 0;
+
+  // Authorised driver — either from filled form or none
+  let authorisedDriver = null;
+  if ($('hasDriver').checked && ($('dName').value || '').trim()) {
+    authorisedDriver = {
+      name: $('dName').value.trim(),
+      address: $('dAddress').value.trim(),
+      licence: $('dLicence').value.trim(),
+      licenceExpiry: $('dLicenceExpiry').value,
+      licenceState: $('dLicenceState').value.trim(),
+      dob: $('dDob').value,
+      mobile: $('dMobile').value.trim(),
+      email: $('dEmail').value.trim(),
+    };
+  }
+
   const payload = {
     renter: {
       name: c.renterName,
@@ -521,19 +730,10 @@ $('generateBtn').addEventListener('click', async function() {
       mobile: c.renterMobile,
       email: c.renterEmail,
     },
-    authorisedDriver: c.driver ? {
-      name: c.driver.name,
-      address: c.driver.address || '',
-      licence: c.driver.licence || '',
-      licenceExpiry: c.driver.licenceExpiry || '',
-      licenceState: c.driver.licenceState || '',
-      dob: c.driver.dob || '',
-      mobile: c.driver.mobile || '',
-      email: c.driver.email || '',
-    } : null,
+    authorisedDriver,
     vehicle: {
-      rego: c.rego,
-      odometer: '', // Leave blank as requested
+      rego: finalRego,
+      odometer: finalOdometer,
       fuelFull: c.fuelFull,
     },
     period: {
@@ -543,10 +743,10 @@ $('generateBtn').addEventListener('click', async function() {
       endTime: newEndTime,
     },
     excess: {
-      damageExcess: c.damageExcess,
-      youngDriverExcess: c.youngDriverExcess,
-      p2DriverExcess: c.p2DriverExcess,
-      securityDeposit: c.securityDeposit,
+      damageExcess: finalDamageExcess,
+      youngDriverExcess: finalYoungDriverExcess,
+      p2DriverExcess: finalP2Excess,
+      securityDeposit: finalSecurityDeposit,
     },
     charges: {
       weeklyRate: weeklyRate,
@@ -562,6 +762,7 @@ $('generateBtn').addEventListener('click', async function() {
       gst: gst,
       total: total,
     },
+    isExtension: true, // Signals the Apps Script to add "EXTENSION" in red after the title
     submittedAt: new Date().toISOString(),
   };
 
